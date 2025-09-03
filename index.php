@@ -1,8 +1,8 @@
 <?php
 
 $mainDir = $_SERVER["DOCUMENT_ROOT"];
-$libDir = $mainDir . "/src/lib";
 $uploadDir = $mainDir . "/upload";
+$src = $mainDir . "/src";
 
 $requestURL = filter_var($_SERVER["REQUEST_URI"], FILTER_SANITIZE_URL);
 $requestURL = rtrim($requestURL, "/");
@@ -10,18 +10,20 @@ $requestURL = strtok($requestURL, "?");
 $isAPI = str_starts_with($requestURL, "/api");
 
 // ! Enable this for extract `/out` next static export
-require_once $libDir . "/next-static.php";
+require_once $src . "/next-static.php";
 
-require_once $libDir . "/meta.php";
-require_once $libDir . "/response.php";
+require_once $src . "/meta.php";
+require_once $src . "/response.php";
 
-require_once $libDir . "/checker.php";
-require_once $libDir . "/router.php";
+require_once $src . "/checker.php";
+require_once $src . "/router.php";
 
 if ($isAPI) {
     header("Content-Type: application/json");
-    require_once $libDir . "/action.php";
-    require_once $libDir . "/session.php";
+    header("Access-Control-Allow-Origin: http://localhost:3000"); // TODO : FrontEnd Origin
+    header("Access-Control-Allow-Headers: Content-Type");
+    require_once $src . "/action.php";
+    require_once $src . "/session.php";
 }
 
 $directories = ["avatar" => $uploadDir . "/avatar"];
@@ -31,7 +33,8 @@ checkDirectories();
 // pageRoute("/");
 
 // * API ROUTES
-route(["GET", "POST"], "/api", "/src/api/example.php");
+$apiPath = "/src/api";
+route(["GET", "POST"], "/api", "$apiPath/example.php");
 
 // * NOT FOUND
 route("ANY", "/404", "NOT FOUND");

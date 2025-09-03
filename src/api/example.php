@@ -2,7 +2,7 @@
 
 $uploadedFile = [];
 
-action("GET", fn() => responseSuccess(["message" => "Hello World!"]));
+action("GET", fn() => responseSuccess(["message" => "Hello world!"]));
 
 action(
     "POST",

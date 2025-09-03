@@ -1,6 +1,6 @@
 <?php
 
-function route(string|array $methods, string $route, string $filePath)
+function route(string|array $methods, string $route, string $filePath, bool $isAuthenticated = false)
 {
     if (!checkMethod($methods)) {
         return;
@@ -8,7 +8,7 @@ function route(string|array $methods, string $route, string $filePath)
 
     global $mainDir, $requestURL, $isAPI;
 
-    if ($route == "/404") {
+    if ($route == "/404" || ($isAuthenticated && isAuthenticated())) {
         if ($isAPI) {
             responseError(new Error("Sumber daya yang diminta tidak ditemukan.", 404));
         } else {

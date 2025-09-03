@@ -2,16 +2,15 @@
 
 function isAuthenticated(array $roles = [])
 {
-    global $error;
     if (!isset($_SESSION["id"])) {
-        responseError($error["unauthorized"]);
+        responseError(new Error("Permintaan tidak terautentikasi!", 401));
     }
 
     if (
         !empty($roles) &&
         (!isset($_SESSION["role"]) || !in_array($_SESSION["role"], $roles))
     ) {
-        responseError($error["notAllowed"]);
+        responseError(new Error("Permintaan ini tidak diperbolehkan!", 403));
     }
 }
 
