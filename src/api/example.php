@@ -1,12 +1,11 @@
 <?php
 
-$uploadedFile = [];
+action("GET", fn($db) => responseSuccess(["message" => "Hello world!"]));
 
-action("GET", fn() => responseSuccess(["message" => "Hello world!"]));
-
+$uploadCtx = [];
 action(
     "POST",
-    function () use ($params, &$uploadedFile) {
+    function ($db) use ($params, &$uploadCtx) {
         $data = checkFields($_POST, [
             "text" => [
                 "type" => "string",
@@ -39,12 +38,13 @@ action(
             ],
             "file" => [
                 "type" => "image",
-                // "optional" => true,
+                "optional" => true,
+                // "min" => 1,
                 // "max" => 5,
             ],
         ]);
 
-        // $uploadedFile = uploadFiles($data["file"] ?? [], "avatar", [
+        // $uploadCtx = uploadFiles($data["file"] ?? [], "avatar", [
         //     "date" => true,
         //     "prefix" => "prefix",
         //     "suffix" => "suffix",
@@ -54,8 +54,8 @@ action(
     },
     [
         // ? do something before responseError()
-        "onError" => function () use (&$uploadedFile) {
-            removeFiles($uploadedFile);
+        "onError" => function () use (&$uploadCtx) {
+            removeFiles($uploadCtx);
         },
     ]
 );

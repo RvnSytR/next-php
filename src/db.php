@@ -16,3 +16,86 @@ function executeStmt(mysqli_stmt $stmt)
     $stmt->execute();
     return $stmt->get_result();
 }
+
+$db = [
+    "user" => [
+        "insert" => function (array $data) use ($conn) {
+            $stmt = $conn->prepare(
+                "INSERT INTO user (id, email, password, name, image, role) VALUES (?, ?,?, ?, ?, ?)"
+            );
+            $stmt->bind_param(
+                "ssssss",
+                $data["id"],
+                $data["email"],
+                $data["password"],
+                $data["name"],
+                $data["image"],
+                $data["role"]
+            );
+            return $stmt->execute();
+        },
+
+        "select" => function () use ($conn) {
+            $stmt = $conn->prepare(
+                "SELECT id, email, name, image, role, updated_at, created_at FROM user ORDER BY created_at DESC"
+            );
+            return executeStmt($stmt);
+        },
+
+        "selectById" => function (string $id) use ($conn) {
+            $stmt = $conn->prepare("SELECT * FROM user WHERE id=?");
+            $stmt->bind_param("s", $id);
+            return executeStmt($stmt);
+        },
+
+        "selectByEmail" => function (string $email) use ($conn) {
+            $stmt = $conn->prepare("SELECT * FROM user WHERE email=?");
+            $stmt->bind_param("s", $email);
+            return executeStmt($stmt);
+        },
+
+        "selectImageById" => function (string $id) use ($conn) {
+            $stmt = $conn->prepare("SELECT image FROM user WHERE id=?");
+            $stmt->bind_param("s", $id);
+            return executeStmt($stmt);
+        },
+
+        // "selectPasswordById" => function (string $id) use ($conn) {
+        //     $stmt = $conn->prepare("SELECT password FROM user WHERE id=?");
+        //     $stmt->bind_param("s", $id);
+        //     return executeStmt($stmt);
+        // },
+
+        // "updateNameById" => function (array $data) use ($conn) {
+        //     $stmt = $conn->prepare("UPDATE user SET name=? WHERE id=?");
+        //     $stmt->bind_param("ss", $data["name"], $data["id"]);
+        //     return executeStmt($stmt);
+        // },
+
+        // "updateImageById" => function (array $data) use ($conn) {
+        //     $stmt = $conn->prepare("UPDATE user SET image=? WHERE id=?");
+        //     $stmt->bind_param("ss", $data["image"], $data["id"]);
+        //     return executeStmt($stmt);
+        // },
+
+        // "updatePasswordById" => function (string $id, string $password) use (
+        //     $conn
+        // ) {
+        //     $stmt = $conn->prepare("UPDATE user SET password=? WHERE id=?");
+        //     $stmt->bind_param("ss", $password, $id);
+        //     return executeStmt($stmt);
+        // },
+
+        // "updateNameAndRoleById" => function (array $data) use ($conn) {
+        //     $stmt = $conn->prepare("UPDATE user SET name=?, role=? WHERE id=?");
+        //     $stmt->bind_param("sss", $data["name"], $data["role"], $data["id"]);
+        //     return executeStmt($stmt);
+        // },
+
+        "remove" => function (string $id) use ($conn) {
+            $stmt = $conn->prepare("DELETE FROM user WHERE id=?");
+            $stmt->bind_param("s", $id);
+            return executeStmt($stmt);
+        },
+    ]
+];

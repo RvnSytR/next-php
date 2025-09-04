@@ -1,19 +1,5 @@
 <?php
 
-function isAuthenticated(array $roles = [])
-{
-    if (!isset($_SESSION["id"])) {
-        responseError(new Error("Permintaan tidak terautentikasi!", 401));
-    }
-
-    if (
-        !empty($roles) &&
-        (!isset($_SESSION["role"]) || !in_array($_SESSION["role"], $roles))
-    ) {
-        responseError(new Error("Permintaan ini tidak diperbolehkan!", 403));
-    }
-}
-
 function checkHttpStatusCode($code)
 {
     return is_int($code) && $code >= 100 && $code <= 599;
@@ -135,18 +121,23 @@ function checkFields(array $fields, array $rules): array
         // File validation
         if ($hasFile) {
             $meta = $fileMeta[$type];
+            $minFile = $rule["min"] ?? null;
             $maxFile = $rule["max"] ?? null;
 
+            if (is_numeric($minFile) && count($value) < $minFile) {
+                throw new Error("Jumlah file pada field '$key' tidak boleh kurang dari $minFile file.", 400);
+            }
+
             if (is_numeric($maxFile) && count($value) > $maxFile) {
-                throw new Error("Jumlah file pada field '$key' melebihi batas maksimum ($maxFile file).", 400);
+                throw new Error("Jumlah file pada field '$key' tidak boleh melebihi $maxFile file.", 400);
             }
 
             foreach ($value as $file) {
                 if ($type !== "file" && !in_array($file["type"], $meta["mimeTypes"])) {
-                    throw new Error("File '" . $file["name"] . "' pada field '$key' memiliki format tidak valid (MIME: " . $file["type"] . "). Format yang didukung: " . join(", ", $meta["extensions"]), 400);
+                    throw new Error("File '{$file["name"]}' pada field '$key' memiliki format tidak valid (MIME: {$file["type"]}). Format yang didukung: " . join(", ", $meta["extensions"]), 400);
                 }
                 if ($file["size"] > $meta["size"]["byte"]) {
-                    throw new Error("Ukuran file '" . $file["name"] . "' pada field '$key' melebihi batas maksimum (" . $meta["size"]["mb"] . " MB).");
+                    throw new Error("Ukuran file '{$file["name"]}' pada field '$key' tidak boleh melebihi {$meta["size"]["mb"]} MB.");
                 }
             }
         } else {
@@ -199,7 +190,7 @@ function checkFields(array $fields, array $rules): array
                         throw new Error("$key tidak boleh kurang dari $min.");
                     }
                     if ($max !== null && $value > $max) {
-                        throw new Error("$key tidak boleh lebih dari $max.");
+                        throw new Error("$key tidak boleh melebihi $max.");
                     }
                     break;
 
@@ -227,7 +218,7 @@ function checkFields(array $fields, array $rules): array
                         throw new Error("$key harus memiliki minimal $min item.");
                     }
                     if ($max !== null && count($value) > $max) {
-                        throw new Error("$key tidak boleh memiliki lebih dari $max item.");
+                        throw new Error("$key tidak boleh memiliki melebihi $max item.");
                     }
                     break;
             }

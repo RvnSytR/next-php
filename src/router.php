@@ -8,7 +8,7 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
 
     global $mainDir, $requestURL, $isAPI;
 
-    if ($route == "/404" || ($isAuthenticated && isAuthenticated())) {
+    if ($route == "/404") {
         if ($isAPI) {
             responseError(new Error("Sumber daya yang diminta tidak ditemukan.", 404));
         } else {
@@ -18,10 +18,34 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
         exit();
     }
 
+    $checkIsAuthenticated = function (array $roles = []) use ($isAPI, $mainDir) {
+        if (!isset($_SESSION["id"])) {
+            if ($isAPI) {
+                responseError(new Error("Permintaan tidak terautentikasi!", 401));
+            } else {
+                header("location: /sign-in");
+                exit();
+            }
+        }
+
+        if (
+            !empty($roles) &&
+            (!isset($_SESSION["role"]) || !in_array($_SESSION["role"], $roles))
+        ) {
+            if ($isAPI) {
+                responseError(new Error("Permintaan ini tidak diperbolehkan!", 403));
+            } else {
+                include_once $mainDir . "/404.html";
+                exit();
+            }
+        }
+    };
+
     $routeParts = array_slice(explode("/", $route), 1);
     $requestURLParts = array_slice(explode("/", $requestURL), 1);
 
     if (empty($routeParts[0]) && empty($requestURLParts)) {
+        $isAuthenticated && $checkIsAuthenticated();
         include_once $mainDir . $filePath;
         exit();
     }
@@ -39,12 +63,13 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
         }
     }
 
+    $isAuthenticated && $checkIsAuthenticated();
     include_once $mainDir . $filePath;
     exit();
 }
 
-function pageRoute(string $route)
+function pageRoute(string $route, bool $isAuthenticated = false)
 {
     $filePath = $route === "/" ? "/index" : $route;
-    route("GET", $route, "$filePath.html");
+    route("GET", $route, "$filePath.html", $isAuthenticated);
 }
