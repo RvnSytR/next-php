@@ -1,6 +1,6 @@
 <?php
 
-action("GET", fn($db) => responseSuccess(["message" => "Hello world!"]));
+action("GET", fn() => responseSuccess(["message" => "Hello world!"]));
 
 $uploadCtx = [];
 action(
@@ -47,7 +47,7 @@ action(
         // $uploadCtx = uploadFiles($data["file"] ?? [], "avatar", [
         //     "date" => true,
         //     "prefix" => "prefix",
-        //     "suffix" => "suffix",
+        //     "suffix" => "suffix"
         // ]);
 
         responseSuccess(["data" => $data]);

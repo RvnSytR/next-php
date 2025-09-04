@@ -2,8 +2,9 @@
 
 action("GET", function ($db) use ($params) {
     $id = $params["id"] ?? null;
-    $data = isset($id) ? $db["user"]["selectById"]($id) : $db["user"]["select"]();
-    $data = $data->fetch_all(MYSQLI_ASSOC);
+    $data = isset($id)
+        ? $db["user"]["selectById"]($id)->fetch_assoc()
+        : $db["user"]["select"]()->fetch_all(MYSQLI_ASSOC);
     responseSuccess(["data" => $data]);
 });
 
@@ -25,14 +26,9 @@ action(
 
         $data["id"] = uuidv4();
         $data["role"] = strtolower($data["role"]);
-        $data["password"] = password_hash(
-            trim($data["password"]),
-            PASSWORD_BCRYPT
-        );
+        $data["password"] = password_hash(trim($data["password"]), PASSWORD_BCRYPT);
 
-        $uploadCtx = uploadFiles($data["image"] ?? [], "avatar", [
-            "date" => true,
-        ]);
+        $uploadCtx = uploadFiles($data["image"] ?? [], "avatar", ["withDate" => true]);
         $data["image"] = $uploadCtx[0] ?? null;
 
         $db["user"]["insert"]($data);
@@ -47,14 +43,13 @@ action(
 
 action("DELETE", function ($db) use ($params) {
     $data = checkFields($params, ["id" => ["type" => "string"]]);
-    $res = $db["user"]["selectImageById"]($data["id"])->fetch_assoc();
+    $res = $db["user"]["selectNameImageById"]($data["id"])->fetch_assoc();
 
-    if (isset($res["image"])) {
-        removeFiles([$res["image"]]);
-    }
+    if (!$res) throw new Error("Akun tidak ditemukan.", 404);
+    if (isset($res["image"])) removeFiles([$res["image"]]);
 
     isset($res["image"]) && removeFiles([$res["image"]]);
     $db["user"]["remove"]($data["id"]);
 
-    responseSuccess(["message" => "Akun berhasil dihapus."]);
+    responseSuccess(["message" => "Akun {$res["name"]} berhasil dihapus."]);
 });

@@ -8,15 +8,9 @@ function checkHttpStatusCode($code)
 function checkDirectories()
 {
     global $uploadDir, $directories;
-
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir);
-    }
-
+    if (!file_exists($uploadDir)) mkdir($uploadDir);
     foreach ($directories as $key => $folder) {
-        if (!file_exists($folder)) {
-            mkdir($folder);
-        }
+        if (!file_exists($folder)) mkdir($folder);
     }
 }
 
@@ -110,9 +104,7 @@ function checkFields(array $fields, array $rules): array
         $hasFile = isset($normalizedFiles[$key]);
 
         if (!$hasField && !$hasFile) {
-            if (!$optional) {
-                $missingFields[] = $key;
-            }
+            if (!$optional) $missingFields[] = $key;
             continue;
         }
 
@@ -142,9 +134,7 @@ function checkFields(array $fields, array $rules): array
             }
         } else {
             // Type validation
-            if (!checkType($value, $type)) {
-                throw new Error("Field '$key' harus berupa $type yang valid.");
-            }
+            if (!checkType($value, $type)) throw new Error("Field '$key' harus berupa $type yang valid.");
 
             // Additional validations
             switch ($type) {
@@ -227,9 +217,7 @@ function checkFields(array $fields, array $rules): array
         $validated[$key] = $value;
     }
 
-    if (!empty($missingFields)) {
-        throw new Error("Data yang diperlukan tidak lengkap: " . join(", ", $missingFields), 400);
-    }
+    if (!empty($missingFields)) throw new Error("Data yang diperlukan tidak lengkap: " . join(", ", $missingFields), 400);
 
     return $validated;
 }

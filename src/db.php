@@ -54,39 +54,31 @@ $db = [
             return executeStmt($stmt);
         },
 
-        "selectImageById" => function (string $id) use ($conn) {
-            $stmt = $conn->prepare("SELECT image FROM user WHERE id=?");
+        "selectNameImageById" => function (string $id) use ($conn) {
+            $stmt = $conn->prepare("SELECT name, image FROM user WHERE id=?");
             $stmt->bind_param("s", $id);
             return executeStmt($stmt);
         },
 
-        // "selectPasswordById" => function (string $id) use ($conn) {
-        //     $stmt = $conn->prepare("SELECT password FROM user WHERE id=?");
-        //     $stmt->bind_param("s", $id);
-        //     return executeStmt($stmt);
-        // },
+        "selectPasswordById" => function (string $id) use ($conn) {
+            $stmt = $conn->prepare("SELECT password FROM user WHERE id=?");
+            $stmt->bind_param("s", $id);
+            return executeStmt($stmt);
+        },
 
-        // "updateNameById" => function (array $data) use ($conn) {
-        //     $stmt = $conn->prepare("UPDATE user SET name=? WHERE id=?");
-        //     $stmt->bind_param("ss", $data["name"], $data["id"]);
-        //     return executeStmt($stmt);
-        // },
+        "updateNameImageById" => function (array $data) use ($conn) {
+            $stmt = $conn->prepare("UPDATE user SET name=?, image=? WHERE id=?");
+            $stmt->bind_param("sss", $data["name"], $data["image"], $data["id"]);
+            return executeStmt($stmt);
+        },
 
-        // "updateImageById" => function (array $data) use ($conn) {
-        //     $stmt = $conn->prepare("UPDATE user SET image=? WHERE id=?");
-        //     $stmt->bind_param("ss", $data["image"], $data["id"]);
-        //     return executeStmt($stmt);
-        // },
+        "updatePasswordById" => function (string $id, string $password) use ($conn) {
+            $stmt = $conn->prepare("UPDATE user SET password=? WHERE id=?");
+            $stmt->bind_param("ss", $password, $id);
+            return executeStmt($stmt);
+        },
 
-        // "updatePasswordById" => function (string $id, string $password) use (
-        //     $conn
-        // ) {
-        //     $stmt = $conn->prepare("UPDATE user SET password=? WHERE id=?");
-        //     $stmt->bind_param("ss", $password, $id);
-        //     return executeStmt($stmt);
-        // },
-
-        // "updateNameAndRoleById" => function (array $data) use ($conn) {
+        // "updateNameRoleById" => function (array $data) use ($conn) {
         //     $stmt = $conn->prepare("UPDATE user SET name=?, role=? WHERE id=?");
         //     $stmt->bind_param("sss", $data["name"], $data["role"], $data["id"]);
         //     return executeStmt($stmt);

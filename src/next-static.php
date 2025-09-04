@@ -28,9 +28,8 @@ function deployNextStatic()
     $deleteRecursive = function ($path) use ($forbidden, $mainDir, &$deleteRecursive) {
         $relPath = str_replace($mainDir . "/", "", $path);
 
-        if (in_array($relPath, $forbidden)) {
-            return; // Skip forbidden files/folders
-        }
+        if (in_array($relPath, $forbidden)) return; // Skip forbidden files/folders
+
 
         if (is_dir($path)) {
             $items = array_diff(scandir($path), [".", ".."]);
@@ -54,9 +53,8 @@ function deployNextStatic()
     if (is_dir($outDir)) {
         $moveRecursive = function ($src, $dst) use (&$moveRecursive) {
             if (is_dir($src)) {
-                if (!is_dir($dst)) {
-                    mkdir($dst, 0755, true);
-                }
+                if (!is_dir($dst)) mkdir($dst, 0755, true);
+
                 $items = array_diff(scandir($src), [".", ".."]);
                 foreach ($items as $item) {
                     $moveRecursive("$src/$item", "$dst/$item");

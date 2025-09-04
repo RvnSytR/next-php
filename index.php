@@ -11,7 +11,7 @@ $requestURL = rtrim($requestURL, "/");
 $requestURL = strtok($requestURL, "?");
 $isAPI = str_starts_with($requestURL, "/api");
 
-// ! Enable this for extract `/out` next static export
+// ! Enable this to extract `/out` next static export
 require_once $src . "/next-static.php";
 
 require_once $src . "/meta.php";
@@ -33,16 +33,18 @@ $directories = ["avatar" => $uploadDir . "/avatar"];
 checkDirectories();
 
 // * PAGE ROUTES
-pageRoute("/", true);
+pageRoute("/");
 pageRoute("/sign-in");
+pageRoute("/dashboard", true);
 
 // * API ROUTES
-$apiPath = "/src/api";
-route(["GET", "POST"], "/api", "$apiPath/example.php");
+route(["GET", "POST"], "/api", "/src/api/example.php");
+route(["POST", "DELETE"], "/api/sign", "/src/api/auth/sign.php");
 
-route(["POST", "DELETE"], "/api/sign", "$apiPath/auth/sign.php");
-route(["GET", "POST"], "/api/user", "$apiPath/auth/user.php", true);
-route(["DELETE"], "/api/user/:id", "$apiPath/auth/user.php", true);
+route(["GET", "POST"], "/api/user", "/src/api/auth/user.php", true);
+route(["POST", "DELETE"], "/api/user/profile", "/src/api/auth/profile.php", true);
+route(["POST"], "/api/user/password", "/src/api/auth/password.php", true);
+route(["GET", "DELETE"], "/api/user/:id", "/src/api/auth/user.php", true);
 
 // * NOT FOUND
 route("ANY", "/404", "NOT FOUND");
