@@ -1,5 +1,11 @@
 <?php
 
+action("GET", function () {
+    $data = !empty($_SESSION) ? $_SESSION : null;
+    $data["image"] = !empty($data["image"]) ? substr($data["image"], strlen($_SERVER["DOCUMENT_ROOT"])) : null;
+    responseSuccess(["data" => $data]);
+});
+
 $uploadCtx = [];
 action(
     "POST",

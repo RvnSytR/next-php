@@ -1,6 +1,7 @@
 <?php
 
 session_start();
+$isProd = false;
 
 $mainDir = $_SERVER["DOCUMENT_ROOT"];
 $uploadDir = $mainDir . "/upload";
@@ -23,7 +24,8 @@ require_once $src . "/router.php";
 if ($isAPI) {
     header("Content-Type: application/json");
     header("Access-Control-Allow-Origin: http://localhost:3000"); // TODO : FrontEnd Origin
-    header("Access-Control-Allow-Headers: Content-Type");
+    header("Access-Control-Allow-Credentials: true");
+    header("Access-Control-Allow-Headers: Content-Type, Authorization");
     require_once $src . "/utils.php";
     require_once $src . "/db.php";
     require_once $src . "/session.php";
@@ -35,16 +37,16 @@ checkDirectories();
 // * PAGE ROUTES
 pageRoute("/");
 pageRoute("/sign-in");
-pageRoute("/dashboard", true);
+pageRoute("/dashboard", $isProd);
 
 // * API ROUTES
 route(["GET", "POST"], "/api", "/src/api/example.php");
 route(["POST", "DELETE"], "/api/sign", "/src/api/auth/sign.php");
 
-route(["GET", "POST"], "/api/user", "/src/api/auth/user.php", true);
-route(["POST", "DELETE"], "/api/user/profile", "/src/api/auth/profile.php", true);
-route(["POST"], "/api/user/password", "/src/api/auth/password.php", true);
-route(["GET", "DELETE"], "/api/user/:id", "/src/api/auth/user.php", true);
+route(["GET", "POST"], "/api/user", "/src/api/auth/user.php", $isProd);
+route(["GET", "POST", "DELETE"], "/api/profile", "/src/api/auth/profile.php", $isProd);
+route(["POST"], "/api/user/password", "/src/api/auth/password.php", $isProd);
+route(["GET", "DELETE"], "/api/user/:id", "/src/api/auth/user.php", $isProd);
 
 // * NOT FOUND
 route("ANY", "/404", "NOT FOUND");

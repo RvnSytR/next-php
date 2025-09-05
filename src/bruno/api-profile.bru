@@ -1,0 +1,20 @@
+meta {
+  name: /api/profile
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{localhost}}/api/profile
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  name: Example
+  image: @file(C:\Users\raven\Pictures\Raven\Private\Honey\.pp.png)
+}
+
+settings {
+  encodeUrl: true
+}

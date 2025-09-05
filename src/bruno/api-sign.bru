@@ -1,0 +1,20 @@
+meta {
+  name: /api/sign
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{localhost}}/api/sign
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  email: example@example.ex
+  password: Example#123
+}
+
+settings {
+  encodeUrl: true
+}
