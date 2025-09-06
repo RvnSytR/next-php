@@ -8,7 +8,12 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
 
     global $mainDir, $requestURL, $isAPI;
 
-    if ($route == "/404") {
+    if ($requestURL === "/sign-in" && isset($_SESSION["id"])) {
+        header("Location: /dashboard");
+        exit();
+    }
+
+    if ($route === "/404") {
         if ($isAPI) {
             responseError(new Error("Sumber daya yang diminta tidak ditemukan.", 404));
         } else {
@@ -18,12 +23,14 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
         exit();
     }
 
+
+
     $checkIsAuthenticated = function (array $roles = []) use ($isAPI, $mainDir) {
         if (!isset($_SESSION["id"])) {
             if ($isAPI) {
                 responseError(new Error("Permintaan tidak terautentikasi!", 401));
             } else {
-                header("location: /sign-in");
+                header("Location: /sign-in");
                 exit();
             }
         }
@@ -45,7 +52,7 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
     $requestURLParts = array_slice(explode("/", $requestURL), 1);
 
     if (empty($routeParts[0]) && empty($requestURLParts)) {
-        $isAuthenticated && $checkIsAuthenticated();
+        if ($isAuthenticated) $checkIsAuthenticated();
         include_once $mainDir . $filePath;
         exit();
     }
@@ -63,7 +70,7 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
         }
     }
 
-    $isAuthenticated && $checkIsAuthenticated();
+    if ($isAuthenticated) $checkIsAuthenticated();
     include_once $mainDir . $filePath;
     exit();
 }
