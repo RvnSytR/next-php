@@ -29,7 +29,7 @@ action(
         $data["password"] = password_hash(trim($data["password"]), PASSWORD_BCRYPT);
 
         $uploadCtx = uploadFiles($data["image"] ?? [], "avatar", ["withDate" => true]);
-        $data["image"] = $uploadCtx[0] ?? null;
+        $data["image"] = !empty($uploadCtx[0]) ? strSliceRootPath($uploadCtx[0]) : null;
 
         $db["user"]["insert"]($data);
         responseSuccess(["message" => "Akun {$data["name"]} berhasil dibuat."]);
@@ -46,10 +46,8 @@ action("DELETE", function ($db) use ($params) {
     $res = $db["user"]["selectNameImageById"]($data["id"])->fetch_assoc();
 
     if (!$res) throw new Error("Akun tidak ditemukan.", 404);
-    if (isset($res["image"])) removeFiles([$res["image"]]);
+    if (isset($res["image"])) removeFiles([strAddRootPath($res["image"])]);
 
-    isset($res["image"]) && removeFiles([$res["image"]]);
     $db["user"]["remove"]($data["id"]);
-
     responseSuccess(["message" => "Akun {$res["name"]} berhasil dihapus."]);
 });

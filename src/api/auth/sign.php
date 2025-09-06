@@ -12,10 +12,10 @@ action("POST", function ($db) {
     }
 
     setSession($res);
-    responseSuccess(["message" => "Berhasil masuk - Selamat datang {$res["name"]}!"]);
+    responseSuccess(["message" => "Berhasil masuk - Selamat datang {$res["name"]} !"]);
 });
 
 action("DELETE", function () {
     destroySession();
-    responseSuccess(["message" => "Berhasil keluar - Sampai jumpa!"]);
+    responseSuccess(["message" => "Berhasil keluar - Sampai jumpa !"]);
 });

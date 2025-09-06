@@ -8,6 +8,18 @@ function uuidv4()
     return vsprintf("%s%s-%s-%s-%s-%s%s%s", str_split(bin2hex($data), 4));
 }
 
+function strSliceRootPath(string $str)
+{
+    $rootPath = $_SERVER["DOCUMENT_ROOT"];
+    if (strpos($str, $rootPath) === 0) return substr($str, strlen($rootPath));
+    return $str;
+}
+
+function strAddRootPath(string $str)
+{
+    return $_SERVER["DOCUMENT_ROOT"] . $str;
+}
+
 function base64url_encode($data)
 {
     return rtrim(strtr(base64_encode($data), "+/", "-_"), "=");

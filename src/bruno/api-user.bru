@@ -6,16 +6,16 @@ meta {
 
 post {
   url: {{localhost}}/api/user
-  body: json
+  body: multipartForm
   auth: inherit
 }
 
 body:multipart-form {
-  email: example@example.ex
+  email: example@example.exx
   password: Example#123
   name: Ex2
   role: user
-  image: @file(C:\Users\raven\Pictures\Raven\Private\Honey\.pp.png)
+  ~image: @file(C:\Users\raven\Pictures\Raven\Private\Honey\.pp.png)
 }
 
 settings {

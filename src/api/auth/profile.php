@@ -1,10 +1,6 @@
 <?php
 
-action("GET", function () {
-    $data = !empty($_SESSION) ? $_SESSION : null;
-    $data["image"] = !empty($data["image"]) ? substr($data["image"], strlen($_SERVER["DOCUMENT_ROOT"])) : null;
-    responseSuccess(["data" => $data]);
-});
+action("GET", fn() => responseSuccess(["data" => $_SESSION]));
 
 $uploadCtx = [];
 action(
@@ -16,19 +12,19 @@ action(
         ]);
 
         $data["id"] = $_SESSION["id"];
-        $data["email"] = $_SESSION["email"];
-        $data["role"] = $_SESSION["role"];
 
         if (isset($data["image"])) {
-            if (isset($_SESSION["image"])) removeFiles([$_SESSION["image"]]);
+            if (isset($_SESSION["image"])) removeFiles([strAddRootPath($_SESSION["image"])]);
             $uploadCtx = uploadFiles($data["image"], "avatar", ["withDate" => true]);
-            $data["image"] = $uploadCtx[0];
+            $data["image"] = strSliceRootPath($uploadCtx[0]);
         } else {
             $data["image"] = $_SESSION["image"];
         }
 
         $db["user"]["updateNameImageById"]($data);
-        setSession($data);
+        $_SESSION["name"] = $data["name"];
+        $_SESSION["image"] = $data["image"];
+
         responseSuccess(["message" => "Profil berhasil diperbarui."]);
     },
     [
@@ -39,15 +35,15 @@ action(
 );
 
 action("DELETE", function ($db) {
-    if (isset($_SESSION["image"])) removeFiles([$_SESSION["image"]]);
+    if (isset($_SESSION["image"])) removeFiles([strAddRootPath($_SESSION["image"])]);
+    else responseError(new Error("Tidak ada foto profil yang diunggah.", 400));
 
     $data["id"] = $_SESSION["id"];
     $data["name"] = $_SESSION["name"];
     $data["image"] = null;
-    $data["email"] = $_SESSION["email"];
-    $data["role"] = $_SESSION["role"];
 
     $db["user"]["updateNameImageById"]($data);
-    setSession($data);
+    $_SESSION["image"] = null;
+
     responseSuccess(["message" => "Foto profil berhasil dihapus."]);
 });

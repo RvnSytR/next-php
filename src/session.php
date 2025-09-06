@@ -7,6 +7,7 @@ function setSession(array $data)
     $_SESSION["image"] = $data["image"];
     $_SESSION["email"] = $data["email"];
     $_SESSION["role"] = $data["role"];
+    $_SESSION["created_at"] = $data["created_at"];
 }
 
 function destroySession()
