@@ -23,9 +23,7 @@ function checkMethod(string|array $methods): bool
     if (
         !in_array("ANY", $methods, true) &&
         !in_array($_SERVER["REQUEST_METHOD"], $methods, true)
-    ) {
-        return false;
-    }
+    ) return false;
 
     return true;
 }
@@ -92,6 +90,7 @@ function checkFields(array $fields, array $rules): array
         }
     }
 
+    // Validation
     foreach ($rules as $key => $rule) {
         $type = $rule["type"];
         $optional = $rule["optional"] ?? false;
@@ -110,7 +109,6 @@ function checkFields(array $fields, array $rules): array
 
         $value = $hasFile ? $normalizedFiles[$key] : $fields[$key];
 
-        // File validation
         if ($hasFile) {
             $meta = $fileMeta[$type];
             $minFile = $rule["min"] ?? null;
@@ -133,10 +131,8 @@ function checkFields(array $fields, array $rules): array
                 }
             }
         } else {
-            // Type validation
             if (!checkType($value, $type)) throw new Error("Field '$key' harus berupa $type yang valid.");
 
-            // Additional validations
             switch ($type) {
                 case "string":
                     $min = $rule["min"] ?? null;
@@ -218,6 +214,5 @@ function checkFields(array $fields, array $rules): array
     }
 
     if (!empty($missingFields)) throw new Error("Data yang diperlukan tidak lengkap: " . join(", ", $missingFields), 400);
-
     return $validated;
 }

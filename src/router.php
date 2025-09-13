@@ -2,10 +2,7 @@
 
 function route(string|array $methods, string $route, string $filePath, bool $isAuthenticated = false)
 {
-    if (!checkMethod($methods)) {
-        return;
-    }
-
+    if (!checkMethod($methods)) return;
     global $mainDir, $requestURL, $isAPI;
 
     if ($requestURL === "/sign-in" && isset($_SESSION["id"])) {
@@ -14,12 +11,8 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
     }
 
     if ($route === "/404") {
-        if ($isAPI) {
-            responseError(new Error("Sumber daya yang diminta tidak ditemukan.", 404));
-        } else {
-            include_once $mainDir . "/404.html";
-        }
-
+        if ($isAPI) responseError(new Error("Sumber daya yang diminta tidak ditemukan.", 404));
+        else include_once $mainDir . "/404.html";
         exit();
     }
 
@@ -27,9 +20,8 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
 
     $checkIsAuthenticated = function (array $roles = []) use ($isAPI, $mainDir) {
         if (!isset($_SESSION["id"])) {
-            if ($isAPI) {
-                responseError(new Error("Permintaan tidak terautentikasi!", 401));
-            } else {
+            if ($isAPI) responseError(new Error("Permintaan tidak terautentikasi!", 401));
+            else {
                 header("Location: /sign-in");
                 exit();
             }
@@ -39,9 +31,8 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
             !empty($roles) &&
             (!isset($_SESSION["role"]) || !in_array($_SESSION["role"], $roles))
         ) {
-            if ($isAPI) {
-                responseError(new Error("Permintaan ini tidak diperbolehkan!", 403));
-            } else {
+            if ($isAPI) responseError(new Error("Permintaan ini tidak diperbolehkan!", 403));
+            else {
                 include_once $mainDir . "/404.html";
                 exit();
             }
@@ -57,9 +48,7 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
         exit();
     }
 
-    if (count($routeParts) != count($requestURLParts)) {
-        return;
-    }
+    if (count($routeParts) != count($requestURLParts)) return;
 
     $params = [];
     foreach ($routeParts as $i => $part) {

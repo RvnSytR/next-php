@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-$isProd = true;
+$isProd = false;
 
 $mainDir = $_SERVER["DOCUMENT_ROOT"];
 $uploadDir = $mainDir . "/upload";
