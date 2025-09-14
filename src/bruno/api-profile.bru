@@ -4,14 +4,14 @@ meta {
   seq: 4
 }
 
-post {
+get {
   url: {{localhost}}/api/profile
   body: multipartForm
   auth: inherit
 }
 
 body:multipart-form {
-  name: RvnSytR
+  name: RvnS
   ~image: @file()
 }
 

@@ -11,11 +11,12 @@ action("POST", function ($db) {
         throw new Error("Email atau kata sandi salah.", 403);
     }
 
-    setSession($res);
+    $_SESSION = $res;
     responseSuccess(["message" => "Berhasil masuk - Selamat datang {$res["name"]} !"]);
 });
 
 action("DELETE", function () {
-    destroySession();
+    session_unset();
+    session_destroy();
     responseSuccess(["message" => "Berhasil keluar - Sampai jumpa !"]);
 });

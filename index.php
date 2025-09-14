@@ -34,7 +34,6 @@ if ($isAPI) {
 
     require_once $src . "/utils.php";
     require_once $src . "/db.php";
-    require_once $src . "/session.php";
 }
 
 $directories = ["avatar" => $uploadDir . "/avatar"];
