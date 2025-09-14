@@ -21,7 +21,7 @@ action(
             $data["image"] = $_SESSION["image"];
         }
 
-        $db["user"]["updateNameImageById"]($data);
+        $db["user"]["update-name&image-by-id"]($data);
         $_SESSION["name"] = $data["name"];
         $_SESSION["image"] = $data["image"];
 
@@ -42,7 +42,7 @@ action("DELETE", function ($db) {
     $data["name"] = $_SESSION["name"];
     $data["image"] = null;
 
-    $db["user"]["updateNameImageById"]($data);
+    $db["user"]["update-name&image-by-id"]($data);
     $_SESSION["image"] = null;
 
     responseSuccess(["message" => "Foto profil berhasil dihapus."]);

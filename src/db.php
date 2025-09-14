@@ -42,43 +42,43 @@ $db = [
             return executeStmt($stmt);
         },
 
-        "selectById" => function (string $id) use ($conn) {
+        "select-by-id" => function (string $id) use ($conn) {
             $stmt = $conn->prepare("SELECT * FROM user WHERE id=?");
             $stmt->bind_param("s", $id);
             return executeStmt($stmt);
         },
 
-        "selectByEmail" => function (string $email) use ($conn) {
+        "select-by-email" => function (string $email) use ($conn) {
             $stmt = $conn->prepare("SELECT * FROM user WHERE email=?");
             $stmt->bind_param("s", $email);
             return executeStmt($stmt);
         },
 
-        "selectNameImageById" => function (string $id) use ($conn) {
+        "select-name&image-by-id" => function (string $id) use ($conn) {
             $stmt = $conn->prepare("SELECT name, image FROM user WHERE id=?");
             $stmt->bind_param("s", $id);
             return executeStmt($stmt);
         },
 
-        "selectPasswordById" => function (string $id) use ($conn) {
+        "select-password-by-id" => function (string $id) use ($conn) {
             $stmt = $conn->prepare("SELECT password FROM user WHERE id=?");
             $stmt->bind_param("s", $id);
             return executeStmt($stmt);
         },
 
-        "updateNameImageById" => function (array $data) use ($conn) {
+        "update-name&image-by-id" => function (array $data) use ($conn) {
             $stmt = $conn->prepare("UPDATE user SET name=?, image=? WHERE id=?");
             $stmt->bind_param("sss", $data["name"], $data["image"], $data["id"]);
             return executeStmt($stmt);
         },
 
-        "updatePasswordById" => function (string $id, string $password) use ($conn) {
+        "update-password-by-id" => function (string $id, string $password) use ($conn) {
             $stmt = $conn->prepare("UPDATE user SET password=? WHERE id=?");
             $stmt->bind_param("ss", $password, $id);
             return executeStmt($stmt);
         },
 
-        // "updateNameRoleById" => function (array $data) use ($conn) {
+        // "update-role-by-id" => function (array $data) use ($conn) {
         //     $stmt = $conn->prepare("UPDATE user SET name=?, role=? WHERE id=?");
         //     $stmt->bind_param("sss", $data["name"], $data["role"], $data["id"]);
         //     return executeStmt($stmt);

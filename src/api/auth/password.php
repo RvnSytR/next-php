@@ -12,7 +12,7 @@ action("POST", function ($db) {
     }
 
     $id = $_SESSION["id"];
-    $currentPassword = $db["user"]["selectPasswordById"]($id)->fetch_assoc()["password"];
+    $currentPassword = $db["user"]["select-password-by-id"]($id)->fetch_assoc()["password"];
 
     if (!password_verify($data["password"], $currentPassword)) {
         throw  new Error("Kata sandi salah.", 401);
@@ -22,6 +22,6 @@ action("POST", function ($db) {
         throw new Error("Tidak ada perubahan yang dilakukan pada kata sandi.", 409);
     }
 
-    $db["user"]["updatePasswordById"]($id, password_hash(trim($data["newPassword"]), PASSWORD_BCRYPT));
+    $db["user"]["update-password-by-id"]($id, password_hash(trim($data["newPassword"]), PASSWORD_BCRYPT));
     responseSuccess(["message" => "Kata sandi berhasil diperbarui."]);
 });

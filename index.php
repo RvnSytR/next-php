@@ -1,7 +1,6 @@
 <?php
 
 session_start();
-$isProd = false;
 
 $mainDir = $_SERVER["DOCUMENT_ROOT"];
 $uploadDir = $mainDir . "/upload";
@@ -44,17 +43,17 @@ checkDirectories();
 // * PAGE ROUTES
 pageRoute("/");
 pageRoute("/sign-in");
-pageRoute("/dashboard", $isProd);
-pageRoute("/dashboard/users", $isProd);
+pageRoute("/dashboard", true);
+pageRoute("/dashboard/users", true);
 
 // * API ROUTES
-route(["GET", "POST"], "/api", "/src/api/example.php");
-route(["POST", "DELETE"], "/api/sign", "/src/api/auth/sign.php");
+apiRoute(["GET", "POST"], "/api", "/example.php");
+apiRoute(["POST", "DELETE"], "/api/sign", "/auth/sign.php");
 
-route(["GET", "POST"], "/api/user", "/src/api/auth/user.php", $isProd);
-route(["GET", "POST", "DELETE"], "/api/profile", "/src/api/auth/profile.php", $isProd);
-route(["POST"], "/api/user/password", "/src/api/auth/password.php", $isProd);
-route(["GET", "DELETE"], "/api/user/:id", "/src/api/auth/user.php", $isProd);
+apiRoute(["GET", "POST"], "/api/user", "/auth/user.php", true);
+apiRoute(["GET", "POST", "DELETE"], "/api/profile", "/auth/profile.php", true);
+apiRoute(["POST"], "/api/user/password", "/auth/password.php", true);
+apiRoute(["GET", "DELETE"], "/api/user/:id", "/auth/user.php", true);
 
 // * NOT FOUND
 route("ANY", "/404", "NOT FOUND");

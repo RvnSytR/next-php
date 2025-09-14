@@ -69,3 +69,8 @@ function pageRoute(string $route, bool $isAuthenticated = false)
     $filePath = $route === "/" ? "/index" : $route;
     route("GET", $route, "$filePath.html", $isAuthenticated);
 }
+
+function apiRoute(string|array $methods, string $route, string $apiFilePath, bool $isAuthenticated = false)
+{
+    route($methods, $route, "/src/api$apiFilePath", $isAuthenticated);
+}

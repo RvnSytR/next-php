@@ -4,18 +4,19 @@ meta {
   seq: 5
 }
 
-post {
+get {
   url: {{localhost}}/api/user
   body: multipartForm
   auth: inherit
 }
 
 body:multipart-form {
+  name: Ex2
   email: example@example.exx
   password: Example#123
-  name: Ex2
+  confirmPassword: Example#123
   role: user
-  ~image: @file(C:\Users\raven\Pictures\Raven\Private\Honey\.pp.png)
+  ~image: @file()
 }
 
 settings {

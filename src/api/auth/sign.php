@@ -6,7 +6,7 @@ action("POST", function ($db) {
         "password" => ["type" => "string"],
     ]);
 
-    $res = $db["user"]["selectByEmail"]($data["email"])->fetch_assoc();
+    $res = $db["user"]["select-by-email"]($data["email"])->fetch_assoc();
     if (!$res || !password_verify($data["password"], $res["password"])) {
         throw new Error("Email atau kata sandi salah.", 403);
     }
