@@ -1,6 +1,11 @@
 <?php
 
-action("GET", fn() => responseSuccess(["data" => $_SESSION]));
+action("GET", function ($db) {
+    if (!isset($_SESSION["id"])) new Error("Permintaan tidak terautentikasi!", 401);
+    $res = $db["user"]["select-by-id"]($_SESSION["id"])->fetch_assoc();
+    setSession($res);
+    responseSuccess(["data" => $_SESSION]);
+});
 
 $uploadCtx = [];
 action(
