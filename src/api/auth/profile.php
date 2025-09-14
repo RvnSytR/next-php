@@ -7,11 +7,14 @@ action(
     "POST",
     function ($db) use (&$uploadCtx) {
         $data = checkFields($_POST, [
-            "name" => ["type" => "string"],
+            "name" => ["type" => "string", "optional" => true],
             "image" => ["type" => "file", "optional" => true, "max" => 1],
         ]);
 
+        if (empty($data)) throw new Error("Tidak ada data untuk diperbarui.", 400);
+
         $data["id"] = $_SESSION["id"];
+        $data["name"] = $data["name"] ?? $_SESSION["name"];
 
         if (isset($data["image"])) {
             if (isset($_SESSION["image"])) removeFiles([strAddRootPath($_SESSION["image"])]);

@@ -1,13 +1,17 @@
 meta {
   name: /api/user/:id
   type: http
-  seq: 6
+  seq: 7
 }
 
-delete {
-  url: {{localhost}}/api/user/7901e337-269c-4d78-a171-4f9714748ca3
-  body: none
+post {
+  url: {{localhost}}/api/user/2c16dc6d-475c-48cd-bd4a-9724cdc24e37
+  body: multipartForm
   auth: inherit
+}
+
+body:multipart-form {
+  role: user
 }
 
 settings {

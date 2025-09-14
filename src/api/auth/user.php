@@ -1,12 +1,6 @@
 <?php
 
-action("GET", function ($db) use ($params) {
-    $id = $params["id"] ?? null;
-    $data = isset($id)
-        ? $db["user"]["select-by-id"]($id)->fetch_assoc()
-        : $db["user"]["select"]()->fetch_all(MYSQLI_ASSOC);
-    responseSuccess(["data" => $data]);
-});
+action("GET", fn($db) => responseSuccess(["data" => $db["user"]["select"]()->fetch_all(MYSQLI_ASSOC)]));
 
 $uploadCtx = [];
 action(
@@ -46,22 +40,24 @@ action(
     ]
 );
 
-action("DELETE", function ($db) use ($params) {
-    $data = checkFields($params, ["id" => ["type" => "string"]]);
+// TODO
+action("DELETE", function ($db) {
+    // $data = checkFields($_POST, ["ids" => ["type" => "array"]]);
+
+    $input = file_get_contents('php://input');
+    parse_str($input, $data);
+    responseSuccess(["data" => $data]);
+
+    if ($_SESSION["id"] === $data["id"])
+        throw new Error("Anda tidak dapat menghapus akun yang sedang digunakan.", 400);
+    if ($_SESSION["role"] !== "admin")
+        throw new Error("Akses ditolak - Anda bukan admin.", 403);
+
     $res = $db["user"]["select-name&image-by-id"]($data["id"])->fetch_assoc();
-
-    if ($_SESSION) {
-        if ($_SESSION["id"] === $data["id"])
-            throw new Error("Anda tidak dapat menghapus akun yang sedang digunakan.", 400);
-        if ($_SESSION["role"] !== "admin")
-            throw new Error("Akses ditolak - Anda bukan admin.", 403);
-    } else {
-        throw new Error("Permintaan tidak terautentikasi!", 401);
-    }
-
     if (!$res) throw new Error("Akun tidak ditemukan.", 404);
     if (isset($res["image"])) removeFiles([strAddRootPath($res["image"])]);
 
     $db["user"]["remove"]($data["id"]);
-    responseSuccess(["message" => "Akun {$res["name"]} berhasil dihapus."]);
+    responseSuccess(["message" => "{$res["name"]} berhasil dihapus."]);
+    // ${successLength} dari ${data.length} akun pengguna
 });

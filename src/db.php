@@ -43,7 +43,7 @@ $db = [
         },
 
         "select-by-id" => function (string $id) use ($conn) {
-            $stmt = $conn->prepare("SELECT * FROM user WHERE id=?");
+            $stmt = $conn->prepare("SELECT id, email, name, image, role, updated_at, created_at FROM user WHERE id=?");
             $stmt->bind_param("s", $id);
             return executeStmt($stmt);
         },
@@ -60,6 +60,12 @@ $db = [
             return executeStmt($stmt);
         },
 
+        "select-name&role-by-id" => function (string $id) use ($conn) {
+            $stmt = $conn->prepare("SELECT name, role FROM user WHERE id=?");
+            $stmt->bind_param("s", $id);
+            return executeStmt($stmt);
+        },
+
         "select-password-by-id" => function (string $id) use ($conn) {
             $stmt = $conn->prepare("SELECT password FROM user WHERE id=?");
             $stmt->bind_param("s", $id);
@@ -72,17 +78,17 @@ $db = [
             return executeStmt($stmt);
         },
 
+        "update-role-by-id" => function (array $data) use ($conn) {
+            $stmt = $conn->prepare("UPDATE user SET role=? WHERE id=?");
+            $stmt->bind_param("ss", $data["role"], $data["id"]);
+            return executeStmt($stmt);
+        },
+
         "update-password-by-id" => function (string $id, string $password) use ($conn) {
             $stmt = $conn->prepare("UPDATE user SET password=? WHERE id=?");
             $stmt->bind_param("ss", $password, $id);
             return executeStmt($stmt);
         },
-
-        // "update-role-by-id" => function (array $data) use ($conn) {
-        //     $stmt = $conn->prepare("UPDATE user SET name=?, role=? WHERE id=?");
-        //     $stmt->bind_param("sss", $data["name"], $data["role"], $data["id"]);
-        //     return executeStmt($stmt);
-        // },
 
         "remove" => function (string $id) use ($conn) {
             $stmt = $conn->prepare("DELETE FROM user WHERE id=?");

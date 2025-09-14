@@ -1,18 +1,17 @@
 meta {
-  name: /api/sign
+  name: /api/user DEL
   type: http
-  seq: 3
+  seq: 6
 }
 
-post {
-  url: {{localhost}}/api/sign
+delete {
+  url: {{localhost}}/api/user
   body: multipartForm
   auth: inherit
 }
 
 body:multipart-form {
-  email: example@example.ex
-  password: Example#123
+  ids[]: 123
 }
 
 settings {

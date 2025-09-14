@@ -50,10 +50,11 @@ pageRoute("/dashboard/users", true);
 apiRoute(["GET", "POST"], "/api", "/example.php");
 apiRoute(["POST", "DELETE"], "/api/sign", "/auth/sign.php");
 
-apiRoute(["GET", "POST"], "/api/user", "/auth/user.php", true);
 apiRoute(["GET", "POST", "DELETE"], "/api/profile", "/auth/profile.php", true);
+
+apiRoute(["GET", "POST", "DELETE"], "/api/user", "/auth/user.php", true);
 apiRoute(["POST"], "/api/user/password", "/auth/password.php", true);
-apiRoute(["GET", "DELETE"], "/api/user/:id", "/auth/user.php", true);
+apiRoute(["GET", "POST", "DELETE"], "/api/user/:id", "/auth/user-id.php", true);
 
 // * NOT FOUND
 route("ANY", "/404", "NOT FOUND");
