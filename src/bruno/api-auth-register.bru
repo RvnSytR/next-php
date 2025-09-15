@@ -1,22 +1,20 @@
 meta {
-  name: /api/user
+  name: /api/auth/register
   type: http
   seq: 5
 }
 
-get {
-  url: {{localhost}}/api/user
+post {
+  url: {{localhost}}/api/auth/register
   body: multipartForm
   auth: inherit
 }
 
 body:multipart-form {
   name: Example
-  email: example@example.exx
+  email: example@example.exxx
   password: Example#123
   confirmPassword: Example#123
-  role: user
-  ~image: @file()
 }
 
 settings {

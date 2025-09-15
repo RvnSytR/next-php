@@ -1,18 +1,17 @@
 meta {
-  name: /api/profile
+  name: /api/users/:id
   type: http
-  seq: 4
+  seq: 12
 }
 
-get {
-  url: {{localhost}}/api/profile
+post {
+  url: {{localhost}}/api/user/2c16dc6d-475c-48cd-bd4a-9724cdc24e37
   body: multipartForm
   auth: inherit
 }
 
 body:multipart-form {
-  name: RvnS
-  ~image: @file()
+  role: user
 }
 
 settings {

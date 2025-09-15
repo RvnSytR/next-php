@@ -1,0 +1,24 @@
+meta {
+  name: /api/users
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{localhost}}/api/users
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  name: Example
+  email: example@example.exx
+  password: Example#123
+  confirmPassword: Example#123
+  role: user
+  ~image: @file()
+}
+
+settings {
+  encodeUrl: true
+}

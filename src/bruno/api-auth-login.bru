@@ -1,17 +1,18 @@
 meta {
-  name: /api/user/:id
+  name: /api/auth/login
   type: http
-  seq: 7
+  seq: 3
 }
 
 post {
-  url: {{localhost}}/api/user/2c16dc6d-475c-48cd-bd4a-9724cdc24e37
+  url: {{localhost}}/api/auth/login
   body: multipartForm
   auth: inherit
 }
 
 body:multipart-form {
-  role: user
+  email: example@example.ex
+  password: Example#123
 }
 
 settings {

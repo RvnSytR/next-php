@@ -39,25 +39,3 @@ action(
         },
     ]
 );
-
-// TODO
-action("DELETE", function ($db) {
-    // $data = checkFields($_POST, ["ids" => ["type" => "array"]]);
-
-    $input = file_get_contents('php://input');
-    parse_str($input, $data);
-    responseSuccess(["data" => $data]);
-
-    if ($_SESSION["id"] === $data["id"])
-        throw new Error("Anda tidak dapat menghapus akun yang sedang digunakan.", 400);
-    if ($_SESSION["role"] !== "admin")
-        throw new Error("Akses ditolak - Anda bukan admin.", 403);
-
-    $res = $db["user"]["select-name&image-by-id"]($data["id"])->fetch_assoc();
-    if (!$res) throw new Error("Akun tidak ditemukan.", 404);
-    if (isset($res["image"])) removeFiles([strAddRootPath($res["image"])]);
-
-    $db["user"]["remove"]($data["id"]);
-    responseSuccess(["message" => "{$res["name"]} berhasil dihapus."]);
-    // ${successLength} dari ${data.length} akun pengguna
-});

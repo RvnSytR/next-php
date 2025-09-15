@@ -1,0 +1,15 @@
+meta {
+  name: /api/auth/logout
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{localhost}}/api/auth/logout
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

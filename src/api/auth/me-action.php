@@ -25,3 +25,17 @@ action("POST", function ($db) {
     $db["user"]["update-password-by-id"]($id, password_hash(trim($data["newPassword"]), PASSWORD_BCRYPT));
     responseSuccess(["message" => "Kata sandi berhasil diperbarui."]);
 });
+
+action("DELETE", function ($db) {
+    if (isset($_SESSION["image"])) removeFiles([strAddRootPath($_SESSION["image"])]);
+    else responseError(new Error("Tidak ada foto profil yang diunggah.", 400));
+
+    $data["id"] = $_SESSION["id"];
+    $data["name"] = $_SESSION["name"];
+    $data["image"] = null;
+
+    $db["user"]["update-name&image-by-id"]($data);
+    $_SESSION["image"] = null;
+
+    responseSuccess(["message" => "Foto profil berhasil dihapus."]);
+});

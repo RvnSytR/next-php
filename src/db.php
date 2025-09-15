@@ -21,7 +21,7 @@ $db = [
     "user" => [
         "insert" => function (array $data) use ($conn) {
             $stmt = $conn->prepare(
-                "INSERT INTO user (id, email, password, name, image, role) VALUES (?, ?,?, ?, ?, ?)"
+                "INSERT INTO user (id, email, password, name, image, role) VALUES (?, ?, ?, ?, ?, ?)"
             );
             $stmt->bind_param(
                 "ssssss",

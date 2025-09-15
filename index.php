@@ -45,15 +45,25 @@ pageRoute("/sign-in");
 pageRoute("/dashboard", true);
 pageRoute("/dashboard/users", true);
 
+
 // * API ROUTES
 apiRoute(["GET", "POST"], "/api", "/example.php");
-apiRoute(["POST", "DELETE"], "/api/sign", "/auth/sign.php");
 
-apiRoute(["GET", "POST", "DELETE"], "/api/profile", "/auth/profile.php", true);
+apiRoute("POST", "/api/auth/login", "/auth/basic.php");
+apiRoute("DELETE", "/api/auth/logout", "/auth/basic.php");
+apiRoute("POST", "/api/auth/register", "/auth/register.php");
 
-apiRoute(["GET", "POST", "DELETE"], "/api/user", "/auth/user.php", true);
-apiRoute(["POST"], "/api/user/password", "/auth/password.php", true);
-apiRoute(["GET", "POST", "DELETE"], "/api/user/:id", "/auth/user-id.php", true);
+apiRoute("GET", "/api/auth/session", "/auth/me.php", true);
+
+apiRoute("POST", "/api/me", "/auth/me.php", true);
+apiRoute("POST", "/api/me/password", "/auth/me.php", true);
+apiRoute("DELETE", "/api/me/avatar", "/auth/me.php", true);
+
+apiRoute(["GET", "POST"], "/api/users", "/auth/user.php", true);
+apiRoute("POST", "/api/users/remove", "/auth/user-remove.php", true);
+
+apiRoute(["GET", "POST", "DELETE"], "/api/users/:id", "/auth/user-id.php", true);
+
 
 // * NOT FOUND
 route("ANY", "/404", "NOT FOUND");

@@ -28,9 +28,11 @@ action("DELETE", function ($db) use ($params) {
         throw new Error("Akses ditolak - Anda bukan admin.", 403);
 
     $res = $db["user"]["select-name&image-by-id"]($data["id"])->fetch_assoc();
+
     if (!$res) throw new Error("Akun tidak ditemukan.", 404);
     if (isset($res["image"])) removeFiles([strAddRootPath($res["image"])]);
 
     $db["user"]["remove"]($data["id"]);
+
     responseSuccess(["message" => "Akun atas nama {$res["name"]} berhasil dihapus."]);
 });

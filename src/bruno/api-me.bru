@@ -1,17 +1,18 @@
 meta {
-  name: /api/user DEL
+  name: /api/me
   type: http
-  seq: 6
+  seq: 7
 }
 
-delete {
-  url: {{localhost}}/api/user
+post {
+  url: {{localhost}}/api/me
   body: multipartForm
   auth: inherit
 }
 
 body:multipart-form {
-  ids[]: 123
+  name: RvnSytR
+  ~image: @file()
 }
 
 settings {
