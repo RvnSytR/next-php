@@ -1,5 +1,6 @@
 <?php
 
+// Change Password
 action("POST", function ($db) {
     $data = checkFields($_POST, [
         "password" => ["type" => "string"],
@@ -26,6 +27,7 @@ action("POST", function ($db) {
     responseSuccess(["message" => "Kata sandi berhasil diperbarui."]);
 });
 
+// Remove Profile Picture
 action("DELETE", function ($db) {
     if (isset($_SESSION["image"])) removeFiles([strAddRootPath($_SESSION["image"])]);
     else responseError(new Error("Tidak ada foto profil yang diunggah.", 400));

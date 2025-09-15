@@ -1,12 +1,13 @@
 <?php
 
+// Get Session
 action("GET", function ($db) {
-    if (!isset($_SESSION["id"])) new Error("Permintaan tidak terautentikasi!", 401);
     $res = $db["user"]["select-by-id"]($_SESSION["id"])->fetch_assoc();
     $_SESSION = $res;
     responseSuccess(["data" => $_SESSION]);
 });
 
+// Update Profile
 $uploadCtx = [];
 action(
     "POST",
@@ -41,17 +42,3 @@ action(
         },
     ]
 );
-
-action("DELETE", function ($db) {
-    if (isset($_SESSION["image"])) removeFiles([strAddRootPath($_SESSION["image"])]);
-    else responseError(new Error("Tidak ada foto profil yang diunggah.", 400));
-
-    $data["id"] = $_SESSION["id"];
-    $data["name"] = $_SESSION["name"];
-    $data["image"] = null;
-
-    $db["user"]["update-name&image-by-id"]($data);
-    $_SESSION["image"] = null;
-
-    responseSuccess(["message" => "Foto profil berhasil dihapus."]);
-});

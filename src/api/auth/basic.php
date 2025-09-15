@@ -1,5 +1,6 @@
 <?php
 
+// Sign In
 action("POST", function ($db) {
     $data = checkFields($_POST, [
         "email" => ["type" => "email"],
@@ -15,6 +16,7 @@ action("POST", function ($db) {
     responseSuccess(["message" => "Berhasil masuk - Selamat datang {$res["name"]} !"]);
 });
 
+// Sign Out
 action("DELETE", function () {
     session_unset();
     session_destroy();

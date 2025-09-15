@@ -1,5 +1,6 @@
 <?php
 
+// Sign Up
 action("POST", function ($db) {
     $data = checkFields($_POST, [
         "name" => ["type" => "string"],

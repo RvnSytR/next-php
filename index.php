@@ -53,16 +53,12 @@ apiRoute("POST", "/api/auth/login", "/auth/basic.php");
 apiRoute("DELETE", "/api/auth/logout", "/auth/basic.php");
 apiRoute("POST", "/api/auth/register", "/auth/register.php");
 
-apiRoute("GET", "/api/auth/session", "/auth/me.php", true);
+apiRoute(["GET", "POST"], "/api/me", "/auth/me.php", true);
+apiRoute("POST", "/api/me/password", "/auth/me-action.php", true);
+apiRoute("DELETE", "/api/me/avatar", "/auth/me-action.php", true);
 
-apiRoute("POST", "/api/me", "/auth/me.php", true);
-apiRoute("POST", "/api/me/password", "/auth/me.php", true);
-apiRoute("DELETE", "/api/me/avatar", "/auth/me.php", true);
-
-apiRoute(["GET", "POST"], "/api/users", "/auth/user.php", true);
-apiRoute("POST", "/api/users/remove", "/auth/user-remove.php", true);
-
-apiRoute(["GET", "POST", "DELETE"], "/api/users/:id", "/auth/user-id.php", true);
+apiRoute(["GET", "POST", "DELETE"], "/api/users", "/auth/users.php", true);
+apiRoute(["GET", "POST", "DELETE"], "/api/users/:id", "/auth/users-id.php", true);
 
 
 // * NOT FOUND

@@ -1,11 +1,13 @@
 <?php
 
+// Get User by Id
 action("GET", function ($db) use ($params) {
     $res = $db["user"]["select-by-id"]($params["id"])->fetch_assoc();
     if (!$res) throw new Error("Akun tidak ditemukan.", 404);
     responseSuccess(["data" => $res]);
 });
 
+// Update User by Id
 action("POST", function ($db) use ($params) {
     $data = checkFields($_POST, ["role" => ["type" => "string"]]);
 
@@ -19,6 +21,7 @@ action("POST", function ($db) use ($params) {
     responseSuccess(["message" => "Role {$res["name"]} berhasil diperbarui menjadi $newRole."]);
 });
 
+// Delete User by Id
 action("DELETE", function ($db) use ($params) {
     $data = checkFields($params, ["id" => ["type" => "string"]]);
 
