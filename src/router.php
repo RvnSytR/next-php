@@ -3,7 +3,7 @@
 function route(string|array $methods, string $route, string $filePath, string|array $roles = [])
 {
     if (!checkMethod($methods)) return;
-    global $mainDir, $requestURL, $isAPI;
+    global $rootDir, $requestURL, $isAPI;
 
     if ($requestURL === "/sign-in" && isset($_SESSION["id"])) {
         header("Location: /dashboard");
@@ -12,12 +12,12 @@ function route(string|array $methods, string $route, string $filePath, string|ar
 
     if ($route === "/404") {
         if ($isAPI) responseError(new Error("Sumber daya yang diminta tidak ditemukan.", 404));
-        else include_once $mainDir . "/404.html";
+        else include_once $rootDir . "/404.html";
         exit();
     }
 
     $requireAuth = (is_string($roles) && strtolower($roles) === "all") || (is_array($roles) && !empty($roles));
-    $checkIsAuthenticated = function () use ($roles, $isAPI, $mainDir) {
+    $checkIsAuthenticated = function () use ($roles, $isAPI, $rootDir) {
         if (!isset($_SESSION["id"])) {
             if ($isAPI) responseError(new Error("Permintaan tidak terautentikasi!", 401));
             else {
@@ -30,7 +30,7 @@ function route(string|array $methods, string $route, string $filePath, string|ar
             if (!isset($_SESSION["role"]) || !in_array($_SESSION["role"], $roles)) {
                 if ($isAPI) responseError(new Error("Permintaan ini tidak diperbolehkan!", 403));
                 else {
-                    include_once $mainDir . "/404.html";
+                    include_once $rootDir . "/404.html";
                     exit();
                 }
             }
@@ -42,7 +42,7 @@ function route(string|array $methods, string $route, string $filePath, string|ar
 
     if (empty($routeParts[0]) && empty($requestURLParts)) {
         if ($requireAuth) $checkIsAuthenticated();
-        include_once $mainDir . $filePath;
+        include_once $rootDir . $filePath;
         exit();
     }
 
@@ -58,7 +58,7 @@ function route(string|array $methods, string $route, string $filePath, string|ar
     }
 
     if ($requireAuth) $checkIsAuthenticated();
-    include_once $mainDir . $filePath;
+    include_once $rootDir . $filePath;
     exit();
 }
 

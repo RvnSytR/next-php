@@ -20,5 +20,5 @@ action("POST", function ($req, $db) {
 action("DELETE", function () {
     session_unset();
     session_destroy();
-    responseSuccess(["message" => "Berhasil keluar - Sampai jumpa !"]);
+    responseSuccess(["message" => "Berhasil keluar - Sampai jumpa!"]);
 });

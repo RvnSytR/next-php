@@ -2,9 +2,9 @@
 
 session_start();
 
-$mainDir = $_SERVER["DOCUMENT_ROOT"];
-$uploadDir = $mainDir . "/upload";
-$src = $mainDir . "/src";
+$rootDir = $_SERVER["DOCUMENT_ROOT"];
+$uploadDir = $rootDir . "/upload";
+$src = $rootDir . "/src";
 
 $requestURL = filter_var($_SERVER["REQUEST_URI"], FILTER_SANITIZE_URL);
 $requestURL = rtrim($requestURL, "/");
@@ -61,6 +61,8 @@ if ($isAPI) {
 
     apiRoute(["GET", "POST", "DELETE"], "/api/users", "/auth/users.php", "all");
     apiRoute(["GET", "POST", "DELETE"], "/api/users/:id", "/auth/users-id.php", "all");
+
+    apiRoute(["GET", "POST"], "/api/:json", "/json.php", ["admin"]);
 }
 
 

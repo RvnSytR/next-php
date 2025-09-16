@@ -1,0 +1,21 @@
+meta {
+  name: /api/:json
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{localhost}}/api/settings.json
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "content": "Hello World"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
