@@ -6,8 +6,8 @@
 
 function deployNextStatic()
 {
-    $rootDir = $_SERVER["DOCUMENT_ROOT"];
-    $outDir  = $rootDir . "/out";
+    global $docRoot;
+    $outDir  = $docRoot . "/out";
 
     // ! Disable this to remove all next static files
     if (!is_dir($outDir)) {
@@ -25,8 +25,8 @@ function deployNextStatic()
     ];
 
     // Helper: delete recursively but skip forbidden
-    $deleteRecursive = function ($path) use ($forbidden, $rootDir, &$deleteRecursive) {
-        $relPath = str_replace($rootDir . "/", "", $path);
+    $deleteRecursive = function ($path) use ($forbidden, $docRoot, &$deleteRecursive) {
+        $relPath = str_replace($docRoot . "/", "", $path);
 
         if (in_array($relPath, $forbidden)) return; // Skip forbidden files/folders
 
@@ -43,10 +43,10 @@ function deployNextStatic()
     };
 
     // Step 1: Clean /main (except forbidden + out folder)
-    $items = array_diff(scandir($rootDir), [".", ".."]);
+    $items = array_diff(scandir($docRoot), [".", ".."]);
     foreach ($items as $item) {
         if ($item === "out") continue; // skip out until later
-        $deleteRecursive($rootDir . "/" . $item);
+        $deleteRecursive($docRoot . "/" . $item);
     }
 
     // Step 2: Move /out content to /main
@@ -64,7 +64,7 @@ function deployNextStatic()
                 rename($src, $dst);
             }
         };
-        $moveRecursive($outDir, $rootDir);
+        $moveRecursive($outDir, $docRoot);
     }
 }
 

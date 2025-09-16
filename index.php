@@ -2,9 +2,9 @@
 
 session_start();
 
-$rootDir = $_SERVER["DOCUMENT_ROOT"];
-$uploadDir = $rootDir . "/upload";
-$src = $rootDir . "/src";
+$docRoot = $_SERVER["DOCUMENT_ROOT"];
+$uploadDir = $docRoot . "/upload";
+$src = $docRoot . "/src";
 
 $requestURL = filter_var($_SERVER["REQUEST_URI"], FILTER_SANITIZE_URL);
 $requestURL = rtrim($requestURL, "/");
@@ -20,8 +20,7 @@ require_once $src . "/response.php";
 require_once $src . "/checker.php";
 require_once $src . "/router.php";
 
-$directories = ["avatar" => $uploadDir . "/avatar"];
-checkDirectories();
+require_once $src . "/init.php";
 
 
 // * PAGE ROUTES

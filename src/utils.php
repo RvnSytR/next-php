@@ -10,8 +10,8 @@ function uuidv4()
 
 function strSliceRootPath(string $str)
 {
-    $rootPath = $_SERVER["DOCUMENT_ROOT"];
-    if (strpos($str, $rootPath) === 0) return substr($str, strlen($rootPath));
+    global $docRoot;
+    if (strpos($str, $docRoot) === 0) return substr($str, strlen($docRoot));
     return $str;
 }
 

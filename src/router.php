@@ -3,7 +3,7 @@
 function route(string|array $methods, string $route, string $filePath, string|array $roles = [])
 {
     if (!checkMethod($methods)) return;
-    global $rootDir, $requestURL, $isAPI;
+    global $docRoot, $requestURL, $isAPI, $config;
 
     if ($requestURL === "/sign-in" && isset($_SESSION["id"])) {
         header("Location: /dashboard");
@@ -12,27 +12,33 @@ function route(string|array $methods, string $route, string $filePath, string|ar
 
     if ($route === "/404") {
         if ($isAPI) responseError(new Error("Sumber daya yang diminta tidak ditemukan.", 404));
-        else include_once $rootDir . "/404.html";
+        else include_once $docRoot . "/404.html";
         exit();
     }
 
+    $checkConfig = function () use ($route, $docRoot, $isAPI, $config) {
+        if (in_array($route, $config["disabledRoutes"], true)) {
+            if ($isAPI) responseError(new Error("Permintaan tidak diperbolehkan!", 403));
+            else include_once $docRoot . "/404.html";
+            exit();
+        }
+
+        // other config validation
+    };
+
     $requireAuth = (is_string($roles) && strtolower($roles) === "all") || (is_array($roles) && !empty($roles));
-    $checkIsAuthenticated = function () use ($roles, $isAPI, $rootDir) {
+    $checkIsAuthenticated = function () use ($roles, $docRoot, $isAPI) {
         if (!isset($_SESSION["id"])) {
             if ($isAPI) responseError(new Error("Permintaan tidak terautentikasi!", 401));
-            else {
-                header("Location: /sign-in");
-                exit();
-            }
+            header("Location: /sign-in");
+            exit();
         }
 
         if (is_array($roles) && !empty($roles)) {
             if (!isset($_SESSION["role"]) || !in_array($_SESSION["role"], $roles)) {
-                if ($isAPI) responseError(new Error("Permintaan ini tidak diperbolehkan!", 403));
-                else {
-                    include_once $rootDir . "/404.html";
-                    exit();
-                }
+                if ($isAPI) responseError(new Error("Permintaan tidak diperbolehkan!", 403));
+                else include_once $docRoot . "/404.html";
+                exit();
             }
         }
     };
@@ -42,7 +48,8 @@ function route(string|array $methods, string $route, string $filePath, string|ar
 
     if (empty($routeParts[0]) && empty($requestURLParts)) {
         if ($requireAuth) $checkIsAuthenticated();
-        include_once $rootDir . $filePath;
+        $checkConfig();
+        include_once $docRoot . $filePath;
         exit();
     }
 
@@ -58,7 +65,8 @@ function route(string|array $methods, string $route, string $filePath, string|ar
     }
 
     if ($requireAuth) $checkIsAuthenticated();
-    include_once $rootDir . $filePath;
+    $checkConfig();
+    include_once $docRoot . $filePath;
     exit();
 }
 

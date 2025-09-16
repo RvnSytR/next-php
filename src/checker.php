@@ -5,15 +5,6 @@ function checkHttpStatusCode($code)
     return is_int($code) && $code >= 100 && $code <= 599;
 }
 
-function checkDirectories()
-{
-    global $uploadDir, $directories;
-    if (!file_exists($uploadDir)) mkdir($uploadDir);
-    foreach ($directories as $key => $folder) {
-        if (!file_exists($folder)) mkdir($folder);
-    }
-}
-
 function checkMethod(string|array $methods): bool
 {
     $methods = is_array($methods)
