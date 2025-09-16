@@ -5,7 +5,11 @@ action("GET", fn() => responseSuccess(["message" => "Hello world!"]));
 $uploadCtx = [];
 action(
     "POST",
-    function ($db) use ($params, &$uploadCtx) {
+    function ($req, $db) use ($params, &$uploadCtx) {
+        // ? $req       : JSON request body
+        // ? $db        : database stmts. see src/db.php
+        // ? $params    : URL dynamic routes. example: /api/users/:id => $params["id"]
+
         $data = checkFields($_POST, [
             "text" => [
                 "type" => "string",

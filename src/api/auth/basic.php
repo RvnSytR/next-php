@@ -1,8 +1,8 @@
 <?php
 
 // Sign In
-action("POST", function ($db) {
-    $data = checkFields($_POST, [
+action("POST", function ($req, $db) {
+    $data = checkFields($req, [
         "email" => ["type" => "email"],
         "password" => ["type" => "string"],
     ]);
@@ -13,7 +13,7 @@ action("POST", function ($db) {
     }
 
     $_SESSION = $res;
-    responseSuccess(["message" => "Berhasil masuk - Selamat datang {$res["name"]} !"]);
+    responseSuccess(["message" => "Berhasil masuk - Selamat datang {$res["name"]}!"]);
 });
 
 // Sign Out

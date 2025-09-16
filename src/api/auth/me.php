@@ -1,7 +1,7 @@
 <?php
 
 // Get Session
-action("GET", function ($db) {
+action("GET", function ($req, $db) {
     $res = $db["user"]["select-by-id"]($_SESSION["id"])->fetch_assoc();
     $_SESSION = $res;
     responseSuccess(["data" => $_SESSION]);
@@ -11,7 +11,7 @@ action("GET", function ($db) {
 $uploadCtx = [];
 action(
     "POST",
-    function ($db) use (&$uploadCtx) {
+    function ($req, $db) use (&$uploadCtx) {
         $data = checkFields($_POST, [
             "name" => ["type" => "string", "optional" => true],
             "image" => ["type" => "file", "optional" => true, "max" => 1],

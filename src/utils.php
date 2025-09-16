@@ -88,7 +88,8 @@ function action(
     global $db;
 
     try {
-        call_user_func_array($callback, [$db]);
+        $req = (array) json_decode(file_get_contents("php://input"));
+        call_user_func_array($callback, [$req, $db]);
     } catch (Throwable $th) {
         $onError = $response["onError"] ?? null;
         if ($onError && is_callable($onError)) call_user_func_array($onError, [$th]);

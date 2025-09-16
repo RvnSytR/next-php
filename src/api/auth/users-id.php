@@ -1,20 +1,21 @@
 <?php
 
 // Get User by Id
-action("GET", function ($db) use ($params) {
+action("GET", function ($req, $db) use ($params) {
     $res = $db["user"]["select-by-id"]($params["id"])->fetch_assoc();
     if (!$res) throw new Error("Akun tidak ditemukan.", 404);
     responseSuccess(["data" => $res]);
 });
 
 // Update User by Id
-action("POST", function ($db) use ($params) {
-    $data = checkFields($_POST, ["role" => ["type" => "string"]]);
+action("POST", function ($req, $db) use ($params) {
+    $data = checkFields($req, ["role" => ["type" => "string"]]);
 
     $res = $db["user"]["select-name&role-by-id"]($params["id"])->fetch_assoc();
     if (!$res) throw new Error("Akun tidak ditemukan.", 404);
 
     $data["id"] = $params["id"];
+    $data["role"] = strtolower($data["role"]);
     $db["user"]["update-role-by-id"]($data);
 
     $newRole = ucfirst($data["role"]);
@@ -22,7 +23,7 @@ action("POST", function ($db) use ($params) {
 });
 
 // Delete User by Id
-action("DELETE", function ($db) use ($params) {
+action("DELETE", function ($req, $db) use ($params) {
     $data = checkFields($params, ["id" => ["type" => "string"]]);
 
     if ($_SESSION["id"] === $data["id"])

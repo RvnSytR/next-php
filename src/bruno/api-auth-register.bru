@@ -6,15 +6,17 @@ meta {
 
 post {
   url: {{localhost}}/api/auth/register
-  body: multipartForm
+  body: json
   auth: inherit
 }
 
-body:multipart-form {
-  name: Example
-  email: example@example.exxx
-  password: Example#123
-  confirmPassword: Example#123
+body:json {
+  {
+    "name": "Example",
+    "email": "example@example.ex",
+    "password": "Example#123",
+    "confirmPassword": "Example#123"
+  }
 }
 
 settings {

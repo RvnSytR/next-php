@@ -1,8 +1,8 @@
 <?php
 
 // Change Password
-action("POST", function ($db) {
-    $data = checkFields($_POST, [
+action("POST", function ($req, $db) {
+    $data = checkFields($req, [
         "password" => ["type" => "string"],
         "newPassword" => ["type" => "password"],
         "confirmPassword" => ["type" => "string"],
@@ -28,7 +28,7 @@ action("POST", function ($db) {
 });
 
 // Remove Profile Picture
-action("DELETE", function ($db) {
+action("DELETE", function ($req, $db) {
     if (isset($_SESSION["image"])) removeFiles([strAddRootPath($_SESSION["image"])]);
     else responseError(new Error("Tidak ada foto profil yang diunggah.", 400));
 

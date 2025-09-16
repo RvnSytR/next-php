@@ -6,17 +6,19 @@ meta {
 
 get {
   url: {{localhost}}/api/users
-  body: multipartForm
+  body: json
   auth: inherit
 }
 
-body:multipart-form {
-  name: Example
-  email: example@example.exx
-  password: Example#123
-  confirmPassword: Example#123
-  role: user
-  ~image: @file()
+body:json {
+  {
+    "name": "Example 2",
+    "email": "example@example.exxx",
+    "role": "user",
+    "password": "Example#123",
+    "newPassword": "Example#123",
+    "confirmPassword": "Example#123"
+  }
 }
 
 settings {
