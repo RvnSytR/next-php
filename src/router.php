@@ -1,6 +1,6 @@
 <?php
 
-function route(string|array $methods, string $route, string $filePath, bool $isAuthenticated = false)
+function route(string|array $methods, string $route, string $filePath, string|array $roles = [])
 {
     if (!checkMethod($methods)) return;
     global $mainDir, $requestURL, $isAPI;
@@ -16,9 +16,8 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
         exit();
     }
 
-
-
-    $checkIsAuthenticated = function (array $roles = []) use ($isAPI, $mainDir) {
+    $requireAuth = (is_string($roles) && strtolower($roles) === "all") || (is_array($roles) && !empty($roles));
+    $checkIsAuthenticated = function () use ($roles, $isAPI, $mainDir) {
         if (!isset($_SESSION["id"])) {
             if ($isAPI) responseError(new Error("Permintaan tidak terautentikasi!", 401));
             else {
@@ -27,14 +26,13 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
             }
         }
 
-        if (
-            !empty($roles) &&
-            (!isset($_SESSION["role"]) || !in_array($_SESSION["role"], $roles))
-        ) {
-            if ($isAPI) responseError(new Error("Permintaan ini tidak diperbolehkan!", 403));
-            else {
-                include_once $mainDir . "/404.html";
-                exit();
+        if (is_array($roles) && !empty($roles)) {
+            if (!isset($_SESSION["role"]) || !in_array($_SESSION["role"], $roles)) {
+                if ($isAPI) responseError(new Error("Permintaan ini tidak diperbolehkan!", 403));
+                else {
+                    include_once $mainDir . "/404.html";
+                    exit();
+                }
             }
         }
     };
@@ -43,7 +41,7 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
     $requestURLParts = array_slice(explode("/", $requestURL), 1);
 
     if (empty($routeParts[0]) && empty($requestURLParts)) {
-        if ($isAuthenticated) $checkIsAuthenticated();
+        if ($requireAuth) $checkIsAuthenticated();
         include_once $mainDir . $filePath;
         exit();
     }
@@ -59,18 +57,18 @@ function route(string|array $methods, string $route, string $filePath, bool $isA
         }
     }
 
-    if ($isAuthenticated) $checkIsAuthenticated();
+    if ($requireAuth) $checkIsAuthenticated();
     include_once $mainDir . $filePath;
     exit();
 }
 
-function pageRoute(string $route, bool $isAuthenticated = false)
+function pageRoute(string $route, string|array $roles = [])
 {
     $filePath = $route === "/" ? "/index" : $route;
-    route("GET", $route, "$filePath.html", $isAuthenticated);
+    route("GET", $route, "$filePath.html", $roles);
 }
 
-function apiRoute(string|array $methods, string $route, string $apiFilePath, bool $isAuthenticated = false)
+function apiRoute(string|array $methods, string $route, string $apiFilePath, string|array $roles = [])
 {
-    route($methods, $route, "/src/api$apiFilePath", $isAuthenticated);
+    route($methods, $route, "/src/api$apiFilePath", $roles);
 }

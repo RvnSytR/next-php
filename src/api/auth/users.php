@@ -61,7 +61,6 @@ action("DELETE", function ($db) {
     $successLength = 0;
     foreach ($data["ids"] as $item) {
         $res = $db["user"]["select-name&image-by-id"]($item)->fetch_assoc();
-
         if (!$res) continue;
 
         if (isset($res["image"])) removeFiles([strAddRootPath($res["image"])]);

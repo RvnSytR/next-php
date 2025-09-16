@@ -20,6 +20,20 @@ require_once $src . "/response.php";
 require_once $src . "/checker.php";
 require_once $src . "/router.php";
 
+$directories = ["avatar" => $uploadDir . "/avatar"];
+checkDirectories();
+
+
+// * PAGE ROUTES
+if (!$isAPI) {
+    pageRoute("/");
+    pageRoute("/sign-in");
+    pageRoute("/dashboard", "all");
+    pageRoute("/dashboard/users", ["admin"]);
+}
+
+
+// * API ROUTES
 if ($isAPI) {
     header("Content-Type: application/json");
     header("Access-Control-Allow-Origin: http://localhost:3000"); // TODO : FrontEnd Origin
@@ -34,31 +48,20 @@ if ($isAPI) {
 
     require_once $src . "/utils.php";
     require_once $src . "/db.php";
+
+    apiRoute(["GET", "POST"], "/api", "/example.php");
+
+    apiRoute("POST", "/api/auth/login", "/auth/basic.php");
+    apiRoute("DELETE", "/api/auth/logout", "/auth/basic.php");
+    apiRoute("POST", "/api/auth/register", "/auth/register.php");
+
+    apiRoute(["GET", "POST"], "/api/me", "/auth/me.php", "all");
+    apiRoute("POST", "/api/me/password", "/auth/me-action.php", "all");
+    apiRoute("DELETE", "/api/me/avatar", "/auth/me-action.php", "all");
+
+    apiRoute(["GET", "POST", "DELETE"], "/api/users", "/auth/users.php", "all");
+    apiRoute(["GET", "POST", "DELETE"], "/api/users/:id", "/auth/users-id.php", "all");
 }
-
-$directories = ["avatar" => $uploadDir . "/avatar"];
-checkDirectories();
-
-// * PAGE ROUTES
-pageRoute("/");
-pageRoute("/sign-in");
-pageRoute("/dashboard", true);
-pageRoute("/dashboard/users", true);
-
-
-// * API ROUTES
-apiRoute(["GET", "POST"], "/api", "/example.php");
-
-apiRoute("POST", "/api/auth/login", "/auth/basic.php");
-apiRoute("DELETE", "/api/auth/logout", "/auth/basic.php");
-apiRoute("POST", "/api/auth/register", "/auth/register.php");
-
-apiRoute(["GET", "POST"], "/api/me", "/auth/me.php", true);
-apiRoute("POST", "/api/me/password", "/auth/me-action.php", true);
-apiRoute("DELETE", "/api/me/avatar", "/auth/me-action.php", true);
-
-apiRoute(["GET", "POST", "DELETE"], "/api/users", "/auth/users.php", true);
-apiRoute(["GET", "POST", "DELETE"], "/api/users/:id", "/auth/users-id.php", true);
 
 
 // * NOT FOUND
