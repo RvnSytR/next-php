@@ -39,17 +39,29 @@ unnecessaryBuildFolders.forEach((folder) => {
 });
 if (!removed) console.log("📂  No unnecessary folders removed.");
 
+async function freshBuild() {
+  try {
+    await $`cd next && bun run build`;
+  } catch (err) {
+    console.error("\n❌  Next.js build failed!");
+    console.error("Try running next build manually with:");
+    console.log("\ncd next && bun run build\n");
+    console.error("Re-run `bun run build` once the build succeeds.");
+    process.exit(1);
+  }
+}
+
 if (existsSync(outDir)) {
   const answer = prompt("❔  Do you want to fresh build Next.js? (y/N): ");
   if (answer?.toLowerCase() === "y") {
     console.log("🚀  Running fresh Next.js build...\n");
-    await $`cd next && bun run build`;
+    await freshBuild();
   } else {
     console.log("⏩  Skipping fresh build, using existing /next/out...");
   }
 } else {
   console.log("🚀  /next/out not found. Building Next.js App...\n");
-  await $`cd next && bun run build`;
+  await freshBuild();
 }
 
 console.log("📤  Copying /next/out → /build...");

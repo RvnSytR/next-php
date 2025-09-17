@@ -70,13 +70,13 @@ function cellCheckbox<R>(row: Row<R>, disabled: boolean = false) {
 
 const createUserColumn = createColumnHelper<User>();
 export const getUserColumn = (currentUserId: string) => [
-  // createUserColumn.display({
-  //   id: "select",
-  //   header: ({ table }) => headerCheckbox(table),
-  //   cell: ({ row }) => cellCheckbox(row),
-  //   enableHiding: false,
-  //   enableSorting: false,
-  // }),
+  createUserColumn.display({
+    id: "select",
+    header: ({ table }) => headerCheckbox(table),
+    cell: ({ row }) => cellCheckbox(row),
+    enableHiding: false,
+    enableSorting: false,
+  }),
   createUserColumn.display({
     id: fieldsMeta.num,
     header: fieldsMeta.num,

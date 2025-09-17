@@ -17,13 +17,11 @@ export function usePhpSWR<T>(
   config?: usePhpSWRConfig,
 ): SWRResponse<T> {
   const { origin, credentials } = appMeta.api;
+  const swrKey = `${origin}${key}`;
   return useSWR(
-    key,
+    swrKey,
     async () =>
-      await fetcher(`${origin}${key}`, schema, {
-        credentials,
-        ...config?.fetcher,
-      }),
+      await fetcher(swrKey, schema, { credentials, ...config?.fetcher }),
     config?.swr,
   );
 }

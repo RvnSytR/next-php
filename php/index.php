@@ -25,6 +25,7 @@ if (!$isAPI) {
     pageRoute("/");
     pageRoute("/sign-in");
     pageRoute("/dashboard", "all");
+    pageRoute("/dashboard/profile", "all");
     pageRoute("/dashboard/users", ["admin"]);
 }
 
@@ -51,8 +52,8 @@ if ($isAPI) {
     apiRoute("POST", "/api/auth/register", "/auth/register.php");
 
     apiRoute(["GET", "POST"], "/api/me", "/auth/me.php", "all");
-    apiRoute("POST", "/api/me/password", "/auth/me-action.php", "all");
     apiRoute("DELETE", "/api/me/avatar", "/auth/me-action.php", "all");
+    apiRoute("POST", "/api/me/password", "/auth/me-action.php", "all");
 
     apiRoute(["GET", "POST", "DELETE"], "/api/users", "/auth/users.php", "all");
     apiRoute(

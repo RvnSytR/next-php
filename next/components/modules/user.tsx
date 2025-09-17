@@ -13,6 +13,7 @@ import {
   LogIn,
   LogOut,
   Save,
+  Settings2,
   Trash2,
   TriangleAlert,
   UserRoundPlus,
@@ -64,6 +65,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Form, FormControl, FormField } from "../ui/form";
 import { FormFieldWrapper, TextFields } from "../ui/form-fields";
 import { Loader } from "../ui/icons";
@@ -175,34 +184,34 @@ export function UserDataTable() {
       columns={getUserColumn(id)}
       searchPlaceholder="Cari Pengguna..."
       enableRowSelection={({ original }) => original.id !== id}
-      // onRowSelection={(data, table) => {
-      //   const filteredData = data.map(({ original }) => original);
-      //   const clearRowSelection = () => table.resetRowSelection();
+      onRowSelection={(data, table) => {
+        const filteredData = data.map(({ original }) => original);
+        const clearRowSelection = () => table.resetRowSelection();
 
-      //   return (
-      //     <DropdownMenu>
-      //       <DropdownMenuTrigger asChild>
-      //         <Button size="sm" variant="outline">
-      //           <Settings2 /> {actions.action}
-      //         </Button>
-      //       </DropdownMenuTrigger>
-      //       <DropdownMenuContent>
-      //         <DropdownMenuLabel className="text-center">
-      //           Akun dipilih: {filteredData.length}
-      //         </DropdownMenuLabel>
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="outline">
+                <Settings2 /> {actions.action}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel className="text-center">
+                Akun dipilih: {filteredData.length}
+              </DropdownMenuLabel>
 
-      //         <DropdownMenuSeparator />
+              <DropdownMenuSeparator />
 
-      //         <DropdownMenuItem asChild>
-      //           <AdminActionRemoveUsersDialog
-      //             data={filteredData}
-      //             onSuccess={clearRowSelection}
-      //           />
-      //         </DropdownMenuItem>
-      //       </DropdownMenuContent>
-      //     </DropdownMenu>
-      //   );
-      // }}
+              <DropdownMenuItem asChild>
+                <AdminActionRemoveUsersDialog
+                  data={filteredData}
+                  onSuccess={clearRowSelection}
+                />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      }}
     />
   );
 }
@@ -265,7 +274,7 @@ export function SignOutButton() {
       disabled={isLoading}
       onClick={() => {
         setIsLoading(true);
-        toast.promise(phpAction("/api/sign", { method: "DELETE" }), {
+        toast.promise(phpAction("/api/auth/logout", { method: "DELETE" }), {
           loading: messages.loading,
           success: (res) => {
             router.push(signInRoute);
@@ -297,10 +306,8 @@ export function SignInForm() {
   const formHandler = (formData: z.infer<typeof schema>) => {
     setIsLoading(true);
 
-    const body = new FormData();
-    Object.entries(formData).forEach(([k, v]) => body.append(k, v));
-
-    toast.promise(phpAction("/api/sign", { body, method: "POST" }), {
+    const body = JSON.stringify(formData);
+    toast.promise(phpAction("/api/auth/login", { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
         router.push(dashboardRoute);
@@ -369,12 +376,8 @@ export function SignUpForm() {
   const formHandler = ({ newPassword, ...rest }: z.infer<typeof schema>) => {
     setIsLoading(true);
 
-    const body = new FormData();
-    body.append("password", newPassword);
-    body.append("role", "user");
-    Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
-
-    toast.promise(phpAction("/api/user", { body, method: "POST" }), {
+    const body = JSON.stringify({ password: newPassword, ...rest });
+    toast.promise(phpAction("/api/auth/register", { body, method: "POST" }), {
       loading: messages.loading,
       success: () => {
         setIsLoading(false);
@@ -498,11 +501,11 @@ function ProfilePicture({ name, image }: Pick<User, "name" | "image">) {
     const body = new FormData();
     body.append("image", files[0]);
 
-    toast.promise(phpAction("/api/profile", { body, method: "POST" }), {
+    toast.promise(phpAction("/api/me", { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
         setIsChange(false);
-        phpMutate("/api/profile");
+        phpMutate("/api/me");
         return res.message;
       },
       error: (e) => {
@@ -514,11 +517,11 @@ function ProfilePicture({ name, image }: Pick<User, "name" | "image">) {
 
   const deleteHandler = async () => {
     setIsRemoved(true);
-    toast.promise(phpAction("/api/profile", { method: "DELETE" }), {
+    toast.promise(phpAction("/api/me/avatar", { method: "DELETE" }), {
       loading: messages.loading,
       success: (res) => {
         setIsRemoved(false);
-        phpMutate("/api/profile");
+        phpMutate("/api/me");
         return res.message;
       },
       error: (e) => {
@@ -612,11 +615,11 @@ function PersonalInformation({ ...props }: User) {
     const body = new FormData();
     body.append("name", newName);
 
-    toast.promise(phpAction("/api/profile", { body, method: "POST" }), {
+    toast.promise(phpAction("/api/me", { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
         setIsLoading(false);
-        phpMutate("/api/profile");
+        phpMutate("/api/me");
         return res.message;
       },
       error: (e) => {
@@ -694,11 +697,8 @@ export function ChangePasswordForm() {
   }: z.infer<typeof schema>) => {
     setIsLoading(true);
 
-    const body = new FormData();
-    body.append("password", currentPassword);
-    Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
-
-    toast.promise(phpAction("/api/user/password", { body, method: "POST" }), {
+    const body = JSON.stringify({ password: currentPassword, ...rest });
+    toast.promise(phpAction("/api/me/password", { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
         setIsLoading(false);
@@ -801,14 +801,11 @@ export function AdminCreateUserDialog() {
   const formHandler = ({ newPassword, ...rest }: z.infer<typeof schema>) => {
     setIsLoading(true);
 
-    const body = new FormData();
-    body.append("password", newPassword);
-    Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
-
-    toast.promise(phpAction("/api/user", { body, method: "POST" }), {
+    const body = JSON.stringify({ password: newPassword, ...rest });
+    toast.promise(phpAction("/api/users", { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
-        phpMutate("/api/user");
+        phpMutate("/api/users");
         setIsLoading(false);
         form.reset();
         return res.message;
@@ -934,13 +931,11 @@ function AdminChangeUserRoleForm({
 
     setIsLoading(true);
 
-    const body = new FormData();
-    body.append("role", newRole);
-
-    toast.promise(phpAction(`/api/user/${id}`, { body, method: "POST" }), {
+    const body = JSON.stringify({ role: newRole });
+    toast.promise(phpAction(`/api/users/${id}`, { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
-        phpMutate("/api/user");
+        phpMutate("/api/users");
         setIsLoading(false);
         setIsOpen(false);
         return res.message;
@@ -994,10 +989,10 @@ function AdminRemoveUserDialog({
   const clickHandler = async () => {
     setIsLoading(true);
 
-    toast.promise(phpAction(`/api/user/${id}`, { method: "DELETE" }), {
+    toast.promise(phpAction(`/api/users/${id}`, { method: "DELETE" }), {
       loading: messages.loading,
       success: (res) => {
-        phpMutate("/api/user");
+        phpMutate("/api/users");
         setIsLoading(false);
         setIsOpen(false);
         return res.message;
@@ -1044,70 +1039,66 @@ function AdminRemoveUserDialog({
   );
 }
 
-// function AdminActionRemoveUsersDialog({
-//   data,
-//   onSuccess,
-// }: {
-//   data: Pick<User, "id" | "name" | "image">[];
-//   onSuccess: () => void;
-// }) {
-//   const [isLoading, setIsLoading] = useState<boolean>(false);
+function AdminActionRemoveUsersDialog({
+  data,
+  onSuccess,
+}: {
+  data: Pick<User, "id" | "name" | "image">[];
+  onSuccess: () => void;
+}) {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-//   const clickHandler = async () => {
-//     setIsLoading(true);
-//     // toast.promise(deleteUsers(data), {
-//     //   loading: messages.loading,
-//     //   error: (e) => {
-//     //     setIsLoading(false);
-//     //     return e;
-//     //   },
-//     //   success: (res) => {
-//     //     setIsLoading(false);
-//     //     onSuccess();
+  const clickHandler = async () => {
+    setIsLoading(true);
 
-//     //     router.refresh();
+    const body = JSON.stringify({ ids: data.map(({ id }) => id) });
+    toast.promise(phpAction(`/api/users`, { body, method: "DELETE" }), {
+      loading: messages.loading,
+      success: (res) => {
+        phpMutate("/api/users");
+        setIsLoading(false);
+        onSuccess();
+        return res.message;
+      },
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
+  };
 
-//     //     const successLength = res.filter(({ success }) => success).length;
-//     //     return messages.success(
-//     //       `${successLength} dari ${data.length} akun pengguna`,
-//     //       "removed",
-//     //     );
-//     //   },
-//     // });
-//   };
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size="sm" variant="ghost_destructive" disabled={isLoading}>
+          <Loader loading={isLoading} icon={{ base: <Trash2 /> }} />
+          {actions.remove}
+        </Button>
+      </AlertDialogTrigger>
 
-//   return (
-//     <AlertDialog>
-//       <AlertDialogTrigger asChild>
-//         <Button size="sm" variant="ghost_destructive" disabled={isLoading}>
-//           <Loader loading={isLoading} icon={{ base: <Trash2 /> }} />
-//           {actions.remove}
-//         </Button>
-//       </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-destructive flex items-center gap-x-2">
+            <TriangleAlert /> Hapus {data.length} Akun
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            PERINGATAN: Tindakan ini akan menghapus {data.length} akun yang
+            dipilih beserta seluruh datanya secara permanen. Harap berhati-hati
+            karena aksi ini tidak dapat dibatalkan.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
-//       <AlertDialogContent>
-//         <AlertDialogHeader>
-//           <AlertDialogTitle className="text-destructive flex items-center gap-x-2">
-//             <TriangleAlert /> Hapus {data.length} Akun
-//           </AlertDialogTitle>
-//           <AlertDialogDescription>
-//             PERINGATAN: Tindakan ini akan menghapus {data.length} akun yang
-//             dipilih beserta seluruh datanya secara permanen. Harap berhati-hati
-//             karena aksi ini tidak dapat dibatalkan.
-//           </AlertDialogDescription>
-//         </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
 
-//         <AlertDialogFooter>
-//           <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
-
-//           <AlertDialogAction
-//             className={buttonVariants({ variant: "destructive" })}
-//             onClick={clickHandler}
-//           >
-//             {actions.confirm}
-//           </AlertDialogAction>
-//         </AlertDialogFooter>
-//       </AlertDialogContent>
-//     </AlertDialog>
-//   );
-// }
+          <AlertDialogAction
+            className={buttonVariants({ variant: "destructive" })}
+            onClick={clickHandler}
+          >
+            {actions.confirm}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}

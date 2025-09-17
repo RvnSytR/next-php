@@ -4,7 +4,7 @@ import { zodAPI, zodUserData } from "../zod";
 
 export function useSession(config?: usePhpSWRConfig) {
   return usePhpSWR(
-    "/api/profile",
+    "/api/me",
     zodAPI.extend({ data: zodUserData.nullable() }),
     config,
   );
@@ -12,5 +12,5 @@ export function useSession(config?: usePhpSWRConfig) {
 
 export function useUser(config?: usePhpSWRConfig) {
   const data = z.array(zodUserData);
-  return usePhpSWR("/api/user", zodAPI.extend({ data }), config);
+  return usePhpSWR("/api/users", zodAPI.extend({ data }), config);
 }

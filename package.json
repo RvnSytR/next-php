@@ -2,6 +2,7 @@
   "name": "next-php",
   "private": true,
   "scripts": {
+    "dev": "cd next && bun run dev",
     "build": "bun --bun run build.ts"
   },
   "devDependencies": {
