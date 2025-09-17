@@ -120,5 +120,5 @@ function apiRoute(
     string $apiFilePath,
     string|array $roles = [],
 ) {
-    route($methods, $route, "/src/api$apiFilePath", $roles);
+    route($methods, $route, "/api$apiFilePath", $roles);
 }

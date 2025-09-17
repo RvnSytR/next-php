@@ -20,7 +20,11 @@ $defaultConfig = [
     "disabledRoutes" => [],
 ];
 
-$configFile = $docRoot . "/src/json/config.json";
+if (!file_exists($jsonDir)) {
+    mkdir($jsonDir);
+}
+
+$configFile = $docRoot . "/json/config.json";
 if (!file_exists($configFile)) {
     file_put_contents(
         $configFile,

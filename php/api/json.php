@@ -1,9 +1,9 @@
 <?php
 
 action("GET", function () use ($params) {
-    global $src;
+    global $jsonDir;
 
-    $jsonFile = $src . "/json/" . $params["json"];
+    $jsonFile = "$jsonDir/{$params["json"]}";
     if (!is_readable($jsonFile)) {
         throw new Error($params["json"] . " tidak ditemukan.", 404);
     }
@@ -17,9 +17,9 @@ action("GET", function () use ($params) {
 });
 
 action("POST", function ($req) use ($params) {
-    global $src;
+    global $jsonDir;
 
-    $jsonFile = $src . "/json/" . $params["json"];
+    $jsonFile = "$jsonDir/{$params["json"]}";
     if (!is_readable($jsonFile)) {
         throw new Error($params["json"] . " tidak ditemukan", 404);
     }

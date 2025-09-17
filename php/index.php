@@ -3,8 +3,9 @@
 session_start();
 
 $docRoot = $_SERVER["DOCUMENT_ROOT"];
-$uploadDir = $docRoot . "/upload";
 $src = $docRoot . "/src";
+$jsonDir = $docRoot . "/json";
+$uploadDir = $docRoot . "/upload";
 
 $requestURL = filter_var($_SERVER["REQUEST_URI"], FILTER_SANITIZE_URL);
 $requestURL = rtrim($requestURL, "/");
