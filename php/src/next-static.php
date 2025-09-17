@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * Deploy Next.js static export from `/out` to the root of this project or `/`
  */
 
@@ -10,9 +10,7 @@ function deployNextStatic()
     $outDir  = $docRoot . "/out";
 
     // ! Disable this to remove all next static files
-    if (!is_dir($outDir)) {
-        return;
-    }
+    if (!is_dir($outDir)) return;
 
     // Files/folders to never delete
     $forbidden = [
@@ -30,12 +28,9 @@ function deployNextStatic()
 
         if (in_array($relPath, $forbidden)) return; // Skip forbidden files/folders
 
-
         if (is_dir($path)) {
             $items = array_diff(scandir($path), [".", ".."]);
-            foreach ($items as $item) {
-                $deleteRecursive($path . "/" . $item);
-            }
+            foreach ($items as $item) $deleteRecursive($path . "/" . $item);
             @rmdir($path);
         } else {
             @unlink($path);
@@ -56,9 +51,7 @@ function deployNextStatic()
                 if (!is_dir($dst)) mkdir($dst, 0755, true);
 
                 $items = array_diff(scandir($src), [".", ".."]);
-                foreach ($items as $item) {
-                    $moveRecursive("$src/$item", "$dst/$item");
-                }
+                foreach ($items as $item) $moveRecursive("$src/$item", "$dst/$item");
                 @rmdir($src);
             } else {
                 rename($src, $dst);

@@ -1,6 +1,4 @@
-/*
+/node_modules
+/main
 
-!/src
-!/.gitignore
-!/.htaccess
-!/index.php
+/php/upload

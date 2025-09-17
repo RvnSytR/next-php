@@ -1,0 +1,11 @@
+{
+  "name": "next-php",
+  "private": true,
+  "scripts": {
+    "build": "cd next && bun run build",
+    "deploy": "bun --bun run deploy.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.22"
+  }
+}
