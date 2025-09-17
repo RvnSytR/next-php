@@ -17,14 +17,20 @@ action(
             "image" => ["type" => "file", "optional" => true, "max" => 1],
         ]);
 
-        if (empty($data)) throw new Error("Tidak ada data untuk diperbarui.", 400);
+        if (empty($data)) {
+            throw new Error("Tidak ada data untuk diperbarui.", 400);
+        }
 
         $data["id"] = $_SESSION["id"];
         $data["name"] = $data["name"] ?? $_SESSION["name"];
 
         if (isset($data["image"])) {
-            if (isset($_SESSION["image"])) removeFiles([strAddRootPath($_SESSION["image"])]);
-            $uploadCtx = uploadFiles($data["image"], "avatar", ["withDate" => true]);
+            if (isset($_SESSION["image"])) {
+                removeFiles([strAddRootPath($_SESSION["image"])]);
+            }
+            $uploadCtx = uploadFiles($data["image"], "avatar", [
+                "withDate" => true,
+            ]);
             $data["image"] = strSliceRootPath($uploadCtx[0]);
         } else {
             $data["image"] = $_SESSION["image"];
@@ -40,5 +46,5 @@ action(
         "onError" => function () use (&$uploadCtx) {
             removeFiles($uploadCtx);
         },
-    ]
+    ],
 );

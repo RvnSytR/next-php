@@ -145,7 +145,7 @@ export function ScrollToTopButton({
     <Button
       size={size}
       className={cn(
-        "fixed right-4 bottom-4 z-40 rounded-full lg:right-10 lg:bottom-8",
+        "fixed bottom-4 right-4 z-40 rounded-full lg:bottom-8 lg:right-10",
         className,
       )}
       onClick={(e) => {

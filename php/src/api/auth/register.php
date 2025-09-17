@@ -10,11 +10,16 @@ action("POST", function ($req, $db) {
     ]);
 
     if ($data["password"] !== $data["confirmPassword"]) {
-        throw new Error("Kata sandi tidak cocok - silakan periksa kembali.", 400);
+        throw new Error(
+            "Kata sandi tidak cocok - silakan periksa kembali.",
+            400,
+        );
     }
 
     $user = $db["user"]["select-by-email"]($data["email"])->fetch_assoc();
-    if (!empty($user)) throw new Error("Email ini sudah terdaftar.", 409);
+    if (!empty($user)) {
+        throw new Error("Email ini sudah terdaftar.", 409);
+    }
 
     $data["id"] = uuidv4();
     $data["role"] = "user";

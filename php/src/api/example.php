@@ -61,5 +61,5 @@ action(
         "onError" => function () use (&$uploadCtx) {
             removeFiles($uploadCtx);
         },
-    ]
+    ],
 );

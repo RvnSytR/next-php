@@ -1,7 +1,12 @@
 <?php
 
 // Get all User
-action("GET", fn($req, $db) => responseSuccess(["data" => $db["user"]["select"]()->fetch_all(MYSQLI_ASSOC)]));
+action(
+    "GET",
+    fn($req, $db) => responseSuccess([
+        "data" => $db["user"]["select"]()->fetch_all(MYSQLI_ASSOC),
+    ]),
+);
 
 // Create new User
 action("POST", function ($req, $db) {
@@ -14,11 +19,16 @@ action("POST", function ($req, $db) {
     ]);
 
     if ($data["password"] !== $data["confirmPassword"]) {
-        throw new Error("Kata sandi tidak cocok - silakan periksa kembali.", 400);
+        throw new Error(
+            "Kata sandi tidak cocok - silakan periksa kembali.",
+            400,
+        );
     }
 
     $user = $db["user"]["select-by-email"]($data["email"])->fetch_assoc();
-    if (!empty($user)) throw new Error("Email ini sudah terdaftar.", 409);
+    if (!empty($user)) {
+        throw new Error("Email ini sudah terdaftar.", 409);
+    }
 
     $data["id"] = uuidv4();
     $data["role"] = strtolower($data["role"]);
@@ -33,12 +43,17 @@ action("DELETE", function ($req, $db) {
     $data = checkFields($req, ["ids" => ["type" => "array"]]);
     $dataLength = count($data["ids"]);
 
-    if ($_SESSION["role"] !== "admin") throw new Error("Akses ditolak - Anda bukan admin.", 403);
+    if ($_SESSION["role"] !== "admin") {
+        throw new Error("Akses ditolak - Anda bukan admin.", 403);
+    }
 
     $i = 1;
     foreach ($data["ids"] as $item) {
         if ($_SESSION["id"] === $item) {
-            throw new Error("Data ke {$i}: Anda tidak dapat menghapus akun yang sedang digunakan.", 400);
+            throw new Error(
+                "Data ke {$i}: Anda tidak dapat menghapus akun yang sedang digunakan.",
+                400,
+            );
         }
         $i++;
     }
@@ -46,13 +61,19 @@ action("DELETE", function ($req, $db) {
     $successLength = 0;
     foreach ($data["ids"] as $item) {
         $user = $db["user"]["select-name&image-by-id"]($item)->fetch_assoc();
-        if (empty($user)) continue;
+        if (empty($user)) {
+            continue;
+        }
 
-        if (isset($user["image"])) removeFiles([strAddRootPath($user["image"])]);
+        if (isset($user["image"])) {
+            removeFiles([strAddRootPath($user["image"])]);
+        }
+
         $db["user"]["remove"]($item);
-
         $successLength++;
     }
 
-    responseSuccess(["message" => "{$successLength} dari {$dataLength} akun pengguna berhasil dihapus."]);
+    responseSuccess([
+        "message" => "{$successLength} dari {$dataLength} akun pengguna berhasil dihapus.",
+    ]);
 });

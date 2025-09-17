@@ -11,7 +11,9 @@ function uuidv4()
 function strSliceRootPath(string $str)
 {
     global $docRoot;
-    if (strpos($str, $docRoot) === 0) return substr($str, strlen($docRoot));
+    if (strpos($str, $docRoot) === 0) {
+        return substr($str, strlen($docRoot));
+    }
     return $str;
 }
 
@@ -27,7 +29,14 @@ function base64url_encode($data)
 
 function base64url_decode($data)
 {
-    return base64_decode(str_pad(strtr($data, "-_", "+/"), strlen($data) % 4, "=", STR_PAD_RIGHT));
+    return base64_decode(
+        str_pad(
+            strtr($data, "-_", "+/"),
+            strlen($data) % 4,
+            "=",
+            STR_PAD_RIGHT,
+        ),
+    );
 }
 
 function uploadFiles(array $files, string $dirKey, array $options = []): array
@@ -38,15 +47,18 @@ function uploadFiles(array $files, string $dirKey, array $options = []): array
         throw new Error("Direktori dengan key '$dirKey' tidak ditemukan.", 500);
     }
 
-    if (empty($files)) return [];
+    if (empty($files)) {
+        return [];
+    }
 
     // Options
     $prefix = $options["prefix"] ?? "";
     $suffix = $options["suffix"] ?? "";
     $withDate =
-        isset($options["withDate"]) && checkType($options["withDate"], "boolean")
-        ? $options["withDate"]
-        : false;
+        isset($options["withDate"]) &&
+        checkType($options["withDate"], "boolean")
+            ? $options["withDate"]
+            : false;
 
     $savedPaths = [];
 
@@ -63,7 +75,10 @@ function uploadFiles(array $files, string $dirKey, array $options = []): array
         $destination = $directories[$dirKey] . "/" . $filename;
 
         if (!move_uploaded_file($file["tmp_name"], $destination)) {
-            throw new Error("Gagal mengunggah file '" . $file["name"] . "'.", 500);
+            throw new Error(
+                "Gagal mengunggah file '" . $file["name"] . "'.",
+                500,
+            );
         }
 
         $savedPaths[] = $destination;
@@ -75,16 +90,18 @@ function uploadFiles(array $files, string $dirKey, array $options = []): array
 function removeFiles(array $filePaths)
 {
     foreach ($filePaths as $filePath) {
-        if (file_exists($filePath)) unlink($filePath);
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
     }
 }
 
-function action(
-    string|array $methods,
-    callable $callback,
-    array $response = []
-) {
-    if (!checkMethod($methods)) return;
+function action(string|array $methods, callable $callback, array $response = [])
+{
+    if (!checkMethod($methods)) {
+        return;
+    }
+
     global $db;
 
     try {
@@ -92,7 +109,9 @@ function action(
         call_user_func_array($callback, [$req, $db]);
     } catch (Throwable $th) {
         $onError = $response["onError"] ?? null;
-        if ($onError && is_callable($onError)) call_user_func_array($onError, [$th]);
+        if ($onError && is_callable($onError)) {
+            call_user_func_array($onError, [$th]);
+        }
         responseError($th);
     }
 }

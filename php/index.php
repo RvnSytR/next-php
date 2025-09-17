@@ -22,7 +22,6 @@ require_once $src . "/router.php";
 
 require_once $src . "/init.php";
 
-
 // * PAGE ROUTES
 if (!$isAPI) {
     pageRoute("/");
@@ -30,7 +29,6 @@ if (!$isAPI) {
     pageRoute("/dashboard", "all");
     pageRoute("/dashboard/users", ["admin"]);
 }
-
 
 // * API ROUTES
 if ($isAPI) {
@@ -40,7 +38,7 @@ if ($isAPI) {
     header("Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    if ($_SERVER["REQUEST_METHOD"] == "OPTIONS") {
         http_response_code(200);
         exit();
     }
@@ -59,11 +57,15 @@ if ($isAPI) {
     apiRoute("DELETE", "/api/me/avatar", "/auth/me-action.php", "all");
 
     apiRoute(["GET", "POST", "DELETE"], "/api/users", "/auth/users.php", "all");
-    apiRoute(["GET", "POST", "DELETE"], "/api/users/:id", "/auth/users-id.php", "all");
+    apiRoute(
+        ["GET", "POST", "DELETE"],
+        "/api/users/:id",
+        "/auth/users-id.php",
+        "all",
+    );
 
     apiRoute(["GET", "POST"], "/api/:json", "/json.php", ["admin"]);
 }
-
 
 // * NOT FOUND
 route("ANY", "/404", "NOT FOUND");

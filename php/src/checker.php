@@ -14,7 +14,9 @@ function checkMethod(string|array $methods): bool
     if (
         !in_array("ANY", $methods, true) &&
         !in_array($_SERVER["REQUEST_METHOD"], $methods, true)
-    ) return false;
+    ) {
+        return false;
+    }
 
     return true;
 }
@@ -28,7 +30,11 @@ function checkType($value, string $type): bool
         case "number":
             return is_numeric($value);
         case "boolean":
-            return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null;
+            return filter_var(
+                $value,
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE,
+            ) !== null;
         case "date":
         case "time":
             return strtotime($value) !== false;
@@ -87,14 +93,20 @@ function checkFields(array $fields, array $rules): array
         $optional = $rule["optional"] ?? false;
 
         if (!in_array($type, $fieldTypes)) {
-            throw new Error("Tipe '$type' pada field '$key', tidak valid. Tipe yang didukung: " . join(", ", $fieldTypes), 400);
+            throw new Error(
+                "Tipe '$type' pada field '$key', tidak valid. Tipe yang didukung: " .
+                    join(", ", $fieldTypes),
+                400,
+            );
         }
 
         $hasField = array_key_exists($key, $fields) && $fields[$key] !== "";
         $hasFile = isset($normalizedFiles[$key]);
 
         if (!$hasField && !$hasFile) {
-            if (!$optional) $missingFields[] = $key;
+            if (!$optional) {
+                $missingFields[] = $key;
+            }
             continue;
         }
 
@@ -106,33 +118,54 @@ function checkFields(array $fields, array $rules): array
             $maxFile = $rule["max"] ?? null;
 
             if (is_numeric($minFile) && count($value) < $minFile) {
-                throw new Error("Jumlah file pada field '$key' tidak boleh kurang dari $minFile file.", 400);
+                throw new Error(
+                    "Jumlah file pada field '$key' tidak boleh kurang dari $minFile file.",
+                    400,
+                );
             }
 
             if (is_numeric($maxFile) && count($value) > $maxFile) {
-                throw new Error("Jumlah file pada field '$key' tidak boleh melebihi $maxFile file.", 400);
+                throw new Error(
+                    "Jumlah file pada field '$key' tidak boleh melebihi $maxFile file.",
+                    400,
+                );
             }
 
             foreach ($value as $file) {
-                if ($type !== "file" && !in_array($file["type"], $meta["mimeTypes"])) {
-                    throw new Error("File '{$file["name"]}' pada field '$key' memiliki format tidak valid (MIME: {$file["type"]}). Format yang didukung: " . join(", ", $meta["extensions"]), 400);
+                if (
+                    $type !== "file" &&
+                    !in_array($file["type"], $meta["mimeTypes"])
+                ) {
+                    throw new Error(
+                        "File '{$file["name"]}' pada field '$key' memiliki format tidak valid (MIME: {$file["type"]}). Format yang didukung: " .
+                            join(", ", $meta["extensions"]),
+                        400,
+                    );
                 }
                 if ($file["size"] > $meta["size"]["byte"]) {
-                    throw new Error("Ukuran file '{$file["name"]}' pada field '$key' tidak boleh melebihi {$meta["size"]["mb"]} MB.");
+                    throw new Error(
+                        "Ukuran file '{$file["name"]}' pada field '$key' tidak boleh melebihi {$meta["size"]["mb"]} MB.",
+                    );
                 }
             }
         } else {
-            if (!checkType($value, $type)) throw new Error("Field '$key' harus berupa $type yang valid.");
+            if (!checkType($value, $type)) {
+                throw new Error("Field '$key' harus berupa $type yang valid.");
+            }
 
             switch ($type) {
                 case "string":
                     $min = $rule["min"] ?? null;
                     $max = $rule["max"] ?? null;
                     if ($min !== null && strlen($value) < $min) {
-                        throw new Error("$key harus terdiri dari minimal $min karakter.");
+                        throw new Error(
+                            "$key harus terdiri dari minimal $min karakter.",
+                        );
                     }
                     if ($max !== null && strlen($value) > $max) {
-                        throw new Error("$key tidak boleh melebihi $max karakter.");
+                        throw new Error(
+                            "$key tidak boleh melebihi $max karakter.",
+                        );
                     }
                     break;
 
@@ -140,22 +173,32 @@ function checkFields(array $fields, array $rules): array
                     $min = $rule["min"] ?? 8;
                     $max = $rule["max"] ?? 255;
                     if (strlen($value) < $min) {
-                        throw new Error("$key harus terdiri dari minimal $min karakter.");
+                        throw new Error(
+                            "$key harus terdiri dari minimal $min karakter.",
+                        );
                     }
                     if (strlen($value) > $max) {
-                        throw new Error("$key tidak boleh melebihi $max karakter.");
+                        throw new Error(
+                            "$key tidak boleh melebihi $max karakter.",
+                        );
                     }
-                    if (!preg_match('/[A-Z]/', $value)) {
-                        throw new Error("$key harus mengandung huruf kapital (A-Z).");
+                    if (!preg_match("/[A-Z]/", $value)) {
+                        throw new Error(
+                            "$key harus mengandung huruf kapital (A-Z).",
+                        );
                     }
-                    if (!preg_match('/[a-z]/', $value)) {
-                        throw new Error("$key harus mengandung huruf kecil (a-z).");
+                    if (!preg_match("/[a-z]/", $value)) {
+                        throw new Error(
+                            "$key harus mengandung huruf kecil (a-z).",
+                        );
                     }
-                    if (!preg_match('/[0-9]/', $value)) {
+                    if (!preg_match("/[0-9]/", $value)) {
                         throw new Error("$key harus mengandung angka (0-9).");
                     }
-                    if (!preg_match('/[^A-Za-z0-9]/', $value)) {
-                        throw new Error("$key harus mengandung karakter khusus.");
+                    if (!preg_match("/[^A-Za-z0-9]/", $value)) {
+                        throw new Error(
+                            "$key harus mengandung karakter khusus.",
+                        );
                     }
                     break;
 
@@ -192,10 +235,14 @@ function checkFields(array $fields, array $rules): array
                     $min = $rule["min"] ?? null;
                     $max = $rule["max"] ?? null;
                     if ($min !== null && count($value) < $min) {
-                        throw new Error("$key harus memiliki minimal $min item.");
+                        throw new Error(
+                            "$key harus memiliki minimal $min item.",
+                        );
                     }
                     if ($max !== null && count($value) > $max) {
-                        throw new Error("$key tidak boleh memiliki melebihi $max item.");
+                        throw new Error(
+                            "$key tidak boleh memiliki melebihi $max item.",
+                        );
                     }
                     break;
             }
@@ -204,6 +251,12 @@ function checkFields(array $fields, array $rules): array
         $validated[$key] = $value;
     }
 
-    if (!empty($missingFields)) throw new Error("Data yang diperlukan tidak lengkap: " . join(", ", $missingFields), 400);
+    if (!empty($missingFields)) {
+        throw new Error(
+            "Data yang diperlukan tidak lengkap: " . join(", ", $missingFields),
+            400,
+        );
+    }
+
     return $validated;
 }

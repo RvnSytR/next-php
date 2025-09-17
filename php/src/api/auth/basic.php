@@ -13,7 +13,9 @@ action("POST", function ($req, $db) {
     }
 
     $_SESSION = $res;
-    responseSuccess(["message" => "Berhasil masuk - Selamat datang {$res["name"]}!"]);
+    responseSuccess([
+        "message" => "Berhasil masuk - Selamat datang {$res["name"]}!",
+    ]);
 });
 
 // Sign Out

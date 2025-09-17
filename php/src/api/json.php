@@ -20,10 +20,19 @@ action("POST", function ($req) use ($params) {
     global $src;
 
     $jsonFile = $src . "/json/" . $params["json"];
-    if (!is_readable($jsonFile)) throw new Error($params["json"] . " tidak ditemukan", 404);
+    if (!is_readable($jsonFile)) {
+        throw new Error($params["json"] . " tidak ditemukan", 404);
+    }
 
-    if (file_put_contents($jsonFile, json_encode($req, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES))) {
-        responseSuccess(["message" => $params["json"] . " berhasil diperbarui."]);
+    if (
+        file_put_contents(
+            $jsonFile,
+            json_encode($req, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+        )
+    ) {
+        responseSuccess([
+            "message" => $params["json"] . " berhasil diperbarui.",
+        ]);
     } else {
         throw new Error("Gagal memperbarui " . $params["json"], 500);
     }

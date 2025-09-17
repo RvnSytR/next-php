@@ -107,7 +107,7 @@ export function FileUpload({
           ref={inputRef}
           multiple={multiple}
           accept={mimeTypes.join(", ")}
-          className={cn("absolute -z-1 opacity-0")}
+          className={cn("-z-1 absolute opacity-0")}
           onChange={({ target }) => changeHandler(target.files)}
           required={required}
         />
@@ -121,7 +121,7 @@ export function FileUpload({
         onDragEnter={handleDragEnterAndOver}
         onDragOver={handleDragEnterAndOver}
         className={cn(
-          "group border-input hover:border-muted-foreground dark:bg-input/30 flex flex-col items-center gap-y-2 rounded-md border border-dashed px-4 py-8 text-center transition outline-none hover:cursor-pointer",
+          "border-input hover:border-muted-foreground dark:bg-input/30 group flex flex-col items-center gap-y-2 rounded-md border border-dashed px-4 py-8 text-center outline-none transition hover:cursor-pointer",
           "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
           classNames?.dropzone,
         )}
@@ -190,7 +190,7 @@ export function FileUpload({
                   onClick={() => removeFile(index)}
                   size="icon-xs"
                   variant="destructive"
-                  className="absolute -top-2 -right-2 z-10 rounded-full"
+                  className="absolute -right-2 -top-2 z-10 rounded-full"
                 >
                   <X />
                 </Button>
@@ -209,7 +209,7 @@ export function FileUpload({
                   )}
                 </div>
 
-                <div className="grid gap-y-1 border-t p-3 break-all *:line-clamp-1">
+                <div className="grid gap-y-1 break-all border-t p-3 *:line-clamp-1">
                   <Link
                     href={fileURL as Route}
                     target="_blank"

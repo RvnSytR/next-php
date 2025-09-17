@@ -397,7 +397,7 @@ export function MultiSelect({
     >
       <div
         className={cn(
-          "border-input dark:bg-input/30 focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive relative min-h-[38px] rounded-md border text-sm transition-[color,box-shadow] outline-none focus-within:ring-[3px] has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50",
+          "border-input dark:bg-input/30 focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50 relative min-h-[38px] rounded-md border text-sm outline-none transition-[color,box-shadow] focus-within:ring-[3px]",
           "flex flex-wrap gap-1",
           selected.length !== 0 && "p-1",
           disabled && selected.length !== 0 && "cursor-text",
@@ -422,7 +422,7 @@ export function MultiSelect({
                 } as React.CSSProperties
               }
               className={cn(
-                "relative h-7 overflow-visible rounded-sm ps-2 pe-7 pl-2 data-fixed:pe-2",
+                "data-fixed:pe-2 relative h-7 overflow-visible rounded-sm pe-7 pl-2 ps-2",
                 "bg-[var(--badge-color)]/10 text-[var(--badge-color)]",
                 badgeClassName,
               )}
@@ -438,7 +438,7 @@ export function MultiSelect({
 
               {!item.fixed && (
                 <button
-                  className="absolute -inset-y-px end-0 flex items-center justify-center rounded-e-md border border-transparent px-1 text-[var(--badge-color)]/40 outline-hidden transition-[color,box-shadow] outline-none hover:text-[var(--badge-color)] focus-visible:border-[var(--badge-color)]/40 focus-visible:ring-[3px] focus-visible:ring-[var(--badge-color)]/50"
+                  className="text-[var(--badge-color)]/40 outline-hidden focus-visible:border-[var(--badge-color)]/40 focus-visible:ring-[var(--badge-color)]/50 absolute -inset-y-px end-0 flex items-center justify-center rounded-e-md border border-transparent px-1 outline-none transition-[color,box-shadow] hover:text-[var(--badge-color)] focus-visible:ring-[3px]"
                   onMouseDown={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -478,7 +478,7 @@ export function MultiSelect({
               : placeholder
           }
           className={cn(
-            "placeholder:text-muted-foreground/70 flex-1 bg-transparent outline-hidden disabled:cursor-not-allowed",
+            "placeholder:text-muted-foreground/70 outline-hidden flex-1 bg-transparent disabled:cursor-not-allowed",
             hidePlaceholderWhenSelected && "w-full",
             selected.length === 0 && "px-3 py-2",
             selected.length !== 0 && "mx-1",
@@ -493,7 +493,7 @@ export function MultiSelect({
             onChange?.(selected.filter((s) => s.fixed));
           }}
           className={cn(
-            "text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute end-0 top-0 flex h-full w-9 items-center justify-center rounded-r-md border border-transparent transition-[color,box-shadow] outline-none focus-visible:ring-[3px]",
+            "text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute end-0 top-0 flex h-full w-9 items-center justify-center rounded-r-md border border-transparent outline-none transition-[color,box-shadow] focus-visible:ring-[3px]",
             (hideClearAllButton ||
               disabled ||
               selected.filter((s) => s.fixed).length === selected.length) &&
@@ -516,7 +516,7 @@ export function MultiSelect({
             data-state={open ? "open" : "closed"}
           >
             <CommandList
-              className="bg-popover text-popover-foreground shadow-lg outline-hidden"
+              className="bg-popover text-popover-foreground outline-hidden shadow-lg"
               onMouseLeave={() => setOnScrollbar(false)}
               onMouseEnter={() => setOnScrollbar(true)}
               onMouseUp={() => inputRef?.current?.focus()}

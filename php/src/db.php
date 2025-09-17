@@ -21,7 +21,7 @@ $db = [
     "user" => [
         "insert" => function (array $data) use ($conn) {
             $stmt = $conn->prepare(
-                "INSERT INTO user (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)"
+                "INSERT INTO user (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)",
             );
             $stmt->bind_param(
                 "sssss",
@@ -29,20 +29,22 @@ $db = [
                 $data["email"],
                 $data["password"],
                 $data["name"],
-                $data["role"]
+                $data["role"],
             );
             return $stmt->execute();
         },
 
         "select" => function () use ($conn) {
             $stmt = $conn->prepare(
-                "SELECT id, email, name, image, role, updated_at, created_at FROM user ORDER BY created_at DESC"
+                "SELECT id, email, name, image, role, updated_at, created_at FROM user ORDER BY created_at DESC",
             );
             return executeStmt($stmt);
         },
 
         "select-by-id" => function (string $id) use ($conn) {
-            $stmt = $conn->prepare("SELECT id, email, name, image, role, updated_at, created_at FROM user WHERE id=?");
+            $stmt = $conn->prepare(
+                "SELECT id, email, name, image, role, updated_at, created_at FROM user WHERE id=?",
+            );
             $stmt->bind_param("s", $id);
             return executeStmt($stmt);
         },
@@ -72,8 +74,15 @@ $db = [
         },
 
         "update-name&image-by-id" => function (array $data) use ($conn) {
-            $stmt = $conn->prepare("UPDATE user SET name=?, image=? WHERE id=?");
-            $stmt->bind_param("sss", $data["name"], $data["image"], $data["id"]);
+            $stmt = $conn->prepare(
+                "UPDATE user SET name=?, image=? WHERE id=?",
+            );
+            $stmt->bind_param(
+                "sss",
+                $data["name"],
+                $data["image"],
+                $data["id"],
+            );
             return executeStmt($stmt);
         },
 
@@ -83,7 +92,9 @@ $db = [
             return executeStmt($stmt);
         },
 
-        "update-password-by-id" => function (string $id, string $password) use ($conn) {
+        "update-password-by-id" => function (string $id, string $password) use (
+            $conn,
+        ) {
             $stmt = $conn->prepare("UPDATE user SET password=? WHERE id=?");
             $stmt->bind_param("ss", $password, $id);
             return executeStmt($stmt);
@@ -94,5 +105,5 @@ $db = [
             $stmt->bind_param("s", $id);
             return executeStmt($stmt);
         },
-    ]
+    ],
 ];

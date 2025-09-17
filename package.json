@@ -6,6 +6,10 @@
     "deploy": "bun --bun run deploy.ts"
   },
   "devDependencies": {
-    "@types/bun": "^1.2.22"
+    "@prettier/plugin-php": "^0.24.0",
+    "@types/bun": "^1.2.22",
+    "prettier": "^3.6.2",
+    "prettier-plugin-organize-imports": "^4.2.0",
+    "prettier-plugin-tailwindcss": "^0.6.14"
   }
 }

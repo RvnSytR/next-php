@@ -120,7 +120,7 @@ export function UserRoleBadge({
             } as React.CSSProperties
           }
           className={cn(
-            "border-[var(--badge-color-light)] text-[var(--badge-color-light)] capitalize dark:border-[var(--badge-color-dark)] dark:text-[var(--badge-color-dark)]",
+            "border-[var(--badge-color-light)] capitalize text-[var(--badge-color-light)] dark:border-[var(--badge-color-dark)] dark:text-[var(--badge-color-dark)]",
           )}
         >
           <Icon /> {displayName ?? role}
@@ -468,7 +468,7 @@ export function PersonalInformationCard({ className }: { className?: string }) {
           {data?.data ? (
             <UserRoleBadge role={data.data.role} />
           ) : (
-            <Skeleton className="h-6 w-18" />
+            <Skeleton className="w-18 h-6" />
           )}
         </CardAction>
       </CardHeader>
