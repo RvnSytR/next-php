@@ -8,19 +8,19 @@ const outDir = join(nextDir, "out");
 const phpDir = join(root, "php");
 const buildDir = join(root, "build");
 
-const unnecessaryMainDir = [
+const unnecessaryBuildFolders = [
   "src/bruno",
   // "src/upload"
 ];
 
-console.info("Starting next-php build...");
+console.log("Starting next-php build...");
 
 if (existsSync(buildDir)) {
-  console.warn("Cleaning old /build...");
+  console.log("Cleaning old /build...");
   rmSync(buildDir, { recursive: true, force: true });
 }
 
-console.info("Copying /php → /build...");
+console.log("Copying /php → /build...");
 cpSync(phpDir, buildDir, { recursive: true });
 
 if (!existsSync(join(buildDir, "index.php"))) {
@@ -29,7 +29,7 @@ if (!existsSync(join(buildDir, "index.php"))) {
 }
 
 let removed = false;
-unnecessaryMainDir.forEach((folder) => {
+unnecessaryBuildFolders.forEach((folder) => {
   const path = join(buildDir, folder);
   if (existsSync(path)) {
     console.log(`Removing /${folder}...`);

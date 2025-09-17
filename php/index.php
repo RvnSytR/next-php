@@ -11,9 +11,6 @@ $requestURL = rtrim($requestURL, "/");
 $requestURL = strtok($requestURL, "?");
 $isAPI = str_starts_with($requestURL, "/api");
 
-// ! Enable this to extract `/out` next static export
-require_once $src . "/next-static.php";
-
 require_once $src . "/meta.php";
 require_once $src . "/response.php";
 
