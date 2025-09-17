@@ -1,53 +1,35 @@
 "use client";
 
-import { authClient } from "@/lib/auth-client";
 import { actions, messages } from "@/lib/content";
+import { action, mutateApi } from "@/lib/fetcher";
 import { useIsMobile } from "@/lib/hooks/use-mobile";
+import { useSession, useUser } from "@/lib/hooks/user";
 import { appMeta, fieldsMeta, fileMeta } from "@/lib/meta";
-import { allRoles, Role, rolesMeta } from "@/lib/permission";
+import { allRoles, Role, rolesMeta, User } from "@/lib/permission";
 import { dashboardRoute, signInRoute } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { zodSchemas, zodUser } from "@/lib/zod";
-import {
-  deleteProfilePicture,
-  deleteUsers,
-  getUserList,
-  revokeUserSessions,
-} from "@/server/action";
-import { getFilePublicUrl, uploadFiles } from "@/server/s3";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Session } from "better-auth";
-import { UserWithRole } from "better-auth/plugins";
 import {
-  BadgeCheck,
-  Ban,
-  Gamepad2,
-  Info,
-  Layers2,
   LogIn,
   LogOut,
-  Monitor,
-  MonitorOff,
-  MonitorSmartphone,
   Save,
-  Settings2,
-  Smartphone,
-  Tablet,
   Trash2,
   TriangleAlert,
-  TvMinimal,
   UserRoundPlus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import useSWR, { mutate } from "swr";
-import { UAParser } from "ua-parser-js";
 import { z } from "zod";
 import { getUserColumn } from "../data-table/column";
-import { DataTable, OtherDataTableProps } from "../data-table/data-table";
-import { SheetDetails } from "../layout/section";
+import { DataTable } from "../data-table/data-table";
+import {
+  ErrorFallback,
+  LoadingFallback,
+  SheetDetails,
+} from "../layout/section";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -63,7 +45,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button, buttonVariants } from "../ui/button";
 import { ResetButton } from "../ui/buttons";
-import { CardContent, CardFooter } from "../ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { Checkbox } from "../ui/checkbox";
 import {
   Dialog,
@@ -75,17 +65,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { Form, FormControl, FormField } from "../ui/form";
 import { FormFieldWrapper, TextFields } from "../ui/form-fields";
-import { GithubIcon, Loader } from "../ui/icons";
+import { Loader } from "../ui/icons";
 import { Label } from "../ui/label";
 import { RadioGroupField } from "../ui/radio-group";
 import { Separator } from "../ui/separator";
@@ -99,6 +81,7 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 import { SidebarMenuButton } from "../ui/sidebar";
+import { Skeleton } from "../ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const userFields = fieldsMeta.user;
@@ -137,7 +120,7 @@ export function UserRoleBadge({
             } as React.CSSProperties
           }
           className={cn(
-            "border-[var(--badge-color-light)] text-[var(--badge-color-light)] capitalize dark:border-[var(--badge-color-dark)] dark:text-[var(--badge-color-dark)]",
+            "border-[var(--badge-color-light)] capitalize text-[var(--badge-color-light)] dark:border-[var(--badge-color-dark)] dark:text-[var(--badge-color-dark)]",
           )}
         >
           <Icon /> {displayName ?? role}
@@ -148,51 +131,19 @@ export function UserRoleBadge({
   );
 }
 
-export function UserVerifiedBadge({
-  withoutText = false,
-  className,
-  classNames,
-}: {
-  withoutText?: boolean;
-  className?: string;
-  classNames?: { badge?: string; icon?: string; content?: string };
-}) {
-  return (
-    <Tooltip>
-      <TooltipTrigger className={className} asChild>
-        {withoutText ? (
-          <BadgeCheck
-            className={cn("text-rvns size-4 shrink-0", classNames?.icon)}
-          />
-        ) : (
-          <Badge
-            variant="outline_rvns"
-            className={cn("capitalize", classNames?.badge)}
-          >
-            <BadgeCheck className={classNames?.icon} /> Terverifikasi
-          </Badge>
-        )}
-      </TooltipTrigger>
-      <TooltipContent className={classNames?.content}>
-        Pengguna ini telah memverifikasi email mereka.
-      </TooltipContent>
-    </Tooltip>
-  );
-}
-
 export function UserAvatar({
   image,
   name,
   className,
   classNames,
-}: Pick<UserWithRole, "image" | "name"> & {
+}: Pick<User, "image" | "name"> & {
   className?: string;
   classNames?: { image?: string; fallback?: string };
 }) {
   return (
     <Avatar className={cn("rounded-xl", className)}>
       <AvatarImage
-        src={image || undefined}
+        src={image ? `${appMeta.api.origin}${image}` : undefined}
         className={cn("rounded-xl", classNames?.image)}
       />
       <AvatarFallback className={cn("rounded-xl", classNames?.fallback)}>
@@ -202,70 +153,62 @@ export function UserAvatar({
   );
 }
 
-export function UserDataTable({
-  data: fallbackData,
-  currentUserId,
-  ...props
-}: OtherDataTableProps<UserWithRole> & {
-  data: UserWithRole[];
-  currentUserId: string;
-}) {
-  const fetcher = async () => (await getUserList()).users;
-  const { data } = useSWR("users", fetcher, { fallbackData });
-  const columns = getUserColumn(currentUserId);
+export function UserDataTable() {
+  const { data: users, error: usersError, isLoading: usersLoading } = useUser();
+  const {
+    data: session,
+    error: sessionError,
+    isLoading: sessionLoading,
+  } = useSession();
+
+  const isLoading = usersLoading || sessionLoading;
+  const error = usersError ?? sessionError;
+
+  if (isLoading) return <LoadingFallback />;
+  if (error || !users?.data || !session?.data?.id)
+    return <ErrorFallback error={error} />;
+
+  const id = session?.data?.id;
+
   return (
     <DataTable
-      data={data}
-      columns={columns}
-      enableRowSelection={({ original }) => original.id !== currentUserId}
-      onRowSelection={(data, table) => {
-        const filteredData = data.map(({ original }) => original);
-        const clearRowSelection = () => table.resetRowSelection();
+      data={users.data}
+      columns={getUserColumn(id)}
+      searchPlaceholder="Cari Pengguna..."
+      enableRowSelection={({ original }) => original.id !== id}
+      // onRowSelection={(data, table) => {
+      //   const filteredData = data.map(({ original }) => original);
+      //   const clearRowSelection = () => table.resetRowSelection();
 
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline">
-                <Settings2 /> {actions.action}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="[&_button]:justify-start">
-              <DropdownMenuLabel className="text-center">
-                Akun dipilih: {filteredData.length}
-              </DropdownMenuLabel>
+      //   return (
+      //     <DropdownMenu>
+      //       <DropdownMenuTrigger asChild>
+      //         <Button size="sm" variant="outline">
+      //           <Settings2 /> {actions.action}
+      //         </Button>
+      //       </DropdownMenuTrigger>
+      //       <DropdownMenuContent>
+      //         <DropdownMenuLabel className="text-center">
+      //           Akun dipilih: {filteredData.length}
+      //         </DropdownMenuLabel>
 
-              <DropdownMenuSeparator />
+      //         <DropdownMenuSeparator />
 
-              <DropdownMenuItem asChild>
-                <AdminActionRevokeUserSessionsDialog
-                  ids={filteredData.map(({ id }) => id)}
-                  onSuccess={clearRowSelection}
-                />
-              </DropdownMenuItem>
-
-              {/* // TODO */}
-              <DropdownMenuItem asChild>
-                <Button size="sm" variant="ghost_destructive" disabled>
-                  <Ban /> Ban
-                </Button>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem asChild>
-                <AdminActionRemoveUsersDialog
-                  data={filteredData}
-                  onSuccess={clearRowSelection}
-                />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      }}
-      {...props}
+      //         <DropdownMenuItem asChild>
+      //           <AdminActionRemoveUsersDialog
+      //             data={filteredData}
+      //             onSuccess={clearRowSelection}
+      //           />
+      //         </DropdownMenuItem>
+      //       </DropdownMenuContent>
+      //     </DropdownMenu>
+      //   );
+      // }}
     />
   );
 }
 
-export function UserDetailSheet({ data }: { data: UserWithRole }) {
+export function UserDetailSheet({ data }: { data: User }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const details = [
@@ -277,10 +220,7 @@ export function UserDetailSheet({ data }: { data: UserWithRole }) {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <div className="flex items-center gap-x-2">
-        <SheetTrigger className="link">{data.email}</SheetTrigger>
-        {data.emailVerified && <UserVerifiedBadge withoutText />}
-      </div>
+      <SheetTrigger className="link">{data.email}</SheetTrigger>
 
       <SheetContent>
         <SheetHeader className="flex-row items-center">
@@ -298,8 +238,7 @@ export function UserDetailSheet({ data }: { data: UserWithRole }) {
           <Separator />
 
           <div className="flex items-center gap-x-2">
-            <UserRoleBadge role={data.role as Role} />
-            {data.emailVerified && <UserVerifiedBadge />}
+            <UserRoleBadge role={data.role} />
           </div>
 
           <SheetDetails data={details} />
@@ -307,20 +246,6 @@ export function UserDetailSheet({ data }: { data: UserWithRole }) {
           <Separator />
 
           <AdminChangeUserRoleForm data={data} setIsOpen={setIsOpen} />
-
-          <Separator />
-
-          {/* // TODO */}
-          <Button variant="outline_primary" disabled>
-            <Layers2 /> Tiru Sesi
-          </Button>
-
-          <AdminRevokeUserSessionsDialog {...data} />
-
-          {/* // TODO */}
-          <Button variant="outline_destructive" disabled>
-            <Ban /> Ban {data.name}
-          </Button>
         </div>
 
         <SheetFooter>
@@ -341,16 +266,15 @@ export function SignOutButton() {
       disabled={isLoading}
       onClick={() => {
         setIsLoading(true);
-        authClient.signOut({
-          fetchOptions: {
-            onError: ({ error }) => {
-              toast.error(error.message);
-              setIsLoading(false);
-            },
-            onSuccess: () => {
-              toast.success("Berhasil keluar - Sampai jumpa!");
-              router.push(signInRoute);
-            },
+        toast.promise(action("/api/sign", { method: "DELETE" }), {
+          loading: messages.loading,
+          success: (res) => {
+            router.push(signInRoute);
+            return res.message;
+          },
+          error: (e) => {
+            setIsLoading(false);
+            return e.message;
           },
         });
       }}
@@ -360,66 +284,34 @@ export function SignOutButton() {
   );
 }
 
-export function SignOnGithubButton() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  return (
-    <Button
-      variant="outline"
-      disabled={isLoading}
-      onClick={() => {
-        setIsLoading(true);
-        authClient.signIn.social(
-          {
-            provider: "github",
-            callbackURL: dashboardRoute,
-            errorCallbackURL: signInRoute,
-          },
-          {
-            onError: ({ error }) => {
-              toast.error(error.message);
-              setIsLoading(false);
-            },
-            onSuccess: () => {
-              toast.success(sharedText.signIn);
-            },
-          },
-        );
-      }}
-    >
-      <Loader loading={isLoading} icon={{ base: <GithubIcon /> }} />
-      {sharedText.signOn("Github")}
-    </Button>
-  );
-}
-
 export function SignInForm() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const schema = zodUser.pick({
-    email: true,
-    password: true,
-    rememberMe: true,
-  });
+  const schema = zodUser.pick({ email: true, password: true });
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "", password: "", rememberMe: false },
+    defaultValues: { email: "", password: "" },
   });
 
   const formHandler = (formData: z.infer<typeof schema>) => {
     setIsLoading(true);
-    authClient.signIn.email(
-      { ...formData, callbackURL: dashboardRoute },
-      {
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          toast.success(sharedText.signIn);
-        },
+
+    const body = new FormData();
+    Object.entries(formData).forEach(([k, v]) => body.append(k, v));
+
+    toast.promise(action("/api/sign", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
+        router.push(dashboardRoute);
+        return res.message;
       },
-    );
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
   };
 
   return (
@@ -437,18 +329,6 @@ export function SignInForm() {
         name="password"
         render={({ field }) => (
           <TextFields type="password" field={field} {...userFields.password} />
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="rememberMe"
-        render={({ field: { value, onChange } }) => (
-          <FormFieldWrapper type="checkbox" label="Ingat Saya">
-            <FormControl>
-              <Checkbox checked={value} onCheckedChange={onChange} />
-            </FormControl>
-          </FormFieldWrapper>
         )}
       />
 
@@ -489,22 +369,24 @@ export function SignUpForm() {
 
   const formHandler = ({ newPassword, ...rest }: z.infer<typeof schema>) => {
     setIsLoading(true);
-    authClient.signUp.email(
-      { password: newPassword, ...rest },
-      {
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          toast.success(
-            "Akun berhasil dibuat. Silakan masuk untuk melanjutkan.",
-          );
-          setIsLoading(false);
-          form.reset();
-        },
+
+    const body = new FormData();
+    body.append("password", newPassword);
+    body.append("role", "user");
+    Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
+
+    toast.promise(action("/api/user", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: () => {
+        setIsLoading(false);
+        form.reset();
+        return "Akun berhasil dibuat! Silakan masuk untuk melanjutkan.";
       },
-    );
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
   };
 
   return (
@@ -573,12 +455,33 @@ export function SignUpForm() {
   );
 }
 
-export function ProfilePicture({
-  id,
-  name,
-  image,
-}: Pick<UserWithRole, "id" | "name" | "image">) {
-  const router = useRouter();
+export function PersonalInformationCard({ className }: { className?: string }) {
+  const { data, error, isLoading } = useSession();
+  return (
+    <Card id="personal-information" className={className}>
+      <CardHeader className="border-b">
+        <CardTitle>Informasi Pribadi</CardTitle>
+        <CardDescription>
+          Perbarui dan kelola informasi profil {appMeta.name} Anda.
+        </CardDescription>
+        <CardAction>
+          {data?.data ? (
+            <UserRoleBadge role={data.data.role} />
+          ) : (
+            <Skeleton className="w-18 h-6" />
+          )}
+        </CardAction>
+      </CardHeader>
+
+      {isLoading && <LoadingFallback />}
+      {error && <ErrorFallback error={error} className="mx-6" hideText />}
+
+      {data?.data && <PersonalInformation {...data.data} />}
+    </Card>
+  );
+}
+
+function ProfilePicture({ name, image }: Pick<User, "name" | "image">) {
   const inputAvatarRef = useRef<HTMLInputElement>(null);
   const [isChange, setIsChange] = useState<boolean>(false);
   const [isRemoved, setIsRemoved] = useState<boolean>(false);
@@ -593,47 +496,37 @@ export function ProfilePicture({
     const parseRes = schema.safeParse(files);
     if (!parseRes.success) return toast.error(parseRes.error.message);
 
-    const file = files[0];
-    const key = `${id}_${file.name}`;
-    const url = await getFilePublicUrl(key);
+    const body = new FormData();
+    body.append("image", files[0]);
 
-    if (image && url !== image) await deleteProfilePicture(image);
-    await uploadFiles({ files: [{ key, file }], ACL: "public-read" });
-
-    authClient.updateUser(
-      { image: url },
-      {
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsChange(false);
-        },
-        onSuccess: () => {
-          toast.success("Foto profil Anda berhasil diperbarui.");
-          setIsChange(false);
-          router.refresh();
-        },
+    toast.promise(action("/api/profile", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
+        setIsChange(false);
+        mutateApi("/api/profile");
+        return res.message;
       },
-    );
+      error: (e) => {
+        setIsChange(false);
+        return e.message;
+      },
+    });
   };
 
   const deleteHandler = async () => {
     setIsRemoved(true);
-    if (image) await deleteProfilePicture(image);
-
-    await authClient.updateUser(
-      { image: null },
-      {
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsRemoved(false);
-        },
-        onSuccess: () => {
-          toast.success("Foto profil Anda berhasil dihapus.");
-          setIsRemoved(false);
-          router.refresh();
-        },
+    toast.promise(action("/api/profile", { method: "DELETE" }), {
+      loading: messages.loading,
+      success: (res) => {
+        setIsRemoved(false);
+        mutateApi("/api/profile");
+        return res.message;
       },
-    );
+      error: (e) => {
+        setIsRemoved(false);
+        return e.message;
+      },
+    });
   };
 
   return (
@@ -702,8 +595,7 @@ export function ProfilePicture({
   );
 }
 
-export function PersonalInformation({ ...props }: UserWithRole) {
-  const router = useRouter();
+function PersonalInformation({ ...props }: User) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { name, email } = props;
@@ -718,20 +610,21 @@ export function PersonalInformation({ ...props }: UserWithRole) {
     if (newName === name) return toast.info(messages.noChanges("profil Anda"));
 
     setIsLoading(true);
-    authClient.updateUser(
-      { name: newName },
-      {
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          toast.success("Profil Anda berhasil diperbarui.");
-          setIsLoading(false);
-          router.refresh();
-        },
+    const body = new FormData();
+    body.append("name", newName);
+
+    toast.promise(action("/api/profile", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
+        setIsLoading(false);
+        mutateApi("/api/profile");
+        return res.message;
       },
-    );
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
   };
 
   return (
@@ -774,7 +667,6 @@ export function PersonalInformation({ ...props }: UserWithRole) {
 }
 
 export function ChangePasswordForm() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const schema = zodUser
@@ -782,7 +674,6 @@ export function ChangePasswordForm() {
       currentPassword: true,
       newPassword: true,
       confirmPassword: true,
-      revokeOtherSessions: true,
     })
     .refine((sc) => sc.newPassword === sc.confirmPassword, {
       message: sharedText.passwordNotMatch,
@@ -795,22 +686,29 @@ export function ChangePasswordForm() {
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
-      revokeOtherSessions: false,
     },
   });
 
-  const formHandler = (formData: z.infer<typeof schema>) => {
+  const formHandler = ({
+    currentPassword,
+    ...rest
+  }: z.infer<typeof schema>) => {
     setIsLoading(true);
-    authClient.changePassword(formData, {
-      onError: ({ error }) => {
-        toast.error(error.message);
-        setIsLoading(false);
-      },
-      onSuccess: () => {
-        toast.success(`${userFields.password.label} Anda berhasil diperbarui.`);
+
+    const body = new FormData();
+    body.append("password", currentPassword);
+    Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
+
+    toast.promise(action("/api/user/password", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
         setIsLoading(false);
         form.reset();
-        router.refresh();
+        return res.message;
+      },
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
       },
     });
   };
@@ -853,21 +751,6 @@ export function ChangePasswordForm() {
             />
           )}
         />
-
-        <FormField
-          control={form.control}
-          name="revokeOtherSessions"
-          render={({ field: { value, onChange } }) => (
-            <FormFieldWrapper
-              type="checkbox"
-              label="Keluar dari perangkat lainnya"
-            >
-              <FormControl>
-                <Checkbox checked={value} onCheckedChange={onChange} />
-              </FormControl>
-            </FormFieldWrapper>
-          )}
-        />
       </CardContent>
 
       <CardFooter className="flex-col items-stretch border-t md:flex-row md:items-center">
@@ -879,218 +762,6 @@ export function ChangePasswordForm() {
         <ResetButton fn={form.reset} />
       </CardFooter>
     </Form>
-  );
-}
-
-export function ActiveSessionButton({
-  currentSessionId,
-  id,
-  updatedAt,
-  userAgent,
-  token,
-}: Session & { currentSessionId: string }) {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const isCurrentSession = currentSessionId === id;
-  const { browser, os, device } = new UAParser(userAgent!).getResult();
-
-  const DeviceIcons = {
-    desktop: Monitor,
-    mobile: Smartphone,
-    tablet: Tablet,
-    console: Gamepad2,
-    smarttv: TvMinimal,
-    wearable: MonitorSmartphone,
-    xr: MonitorSmartphone,
-    embedded: MonitorSmartphone,
-    other: MonitorSmartphone,
-  }[device.type || "other"];
-
-  const clickHandler = () => {
-    setIsLoading(true);
-    authClient.revokeSession(
-      { token },
-      {
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          toast.success("Sesi berhasil dicabut.");
-          setIsLoading(false);
-          router.refresh();
-        },
-      },
-    );
-  };
-
-  return (
-    <div className="bg-card flex items-center gap-x-4 rounded-lg border p-2 shadow-xs">
-      <div className="flex grow items-center gap-x-2">
-        <div className="bg-muted aspect-square size-fit rounded-md p-2">
-          <DeviceIcons className="shrink-0" />
-        </div>
-
-        <div className="flex flex-col">
-          <small className="font-medium">
-            {`${browser.name ?? "Browser tidak diketahui"} di ${os.name ?? "sistem operasi yang tidak diketahui"}`}
-          </small>
-
-          {isCurrentSession ? (
-            <small className="text-success order-1 font-medium">
-              Sesi saat ini
-            </small>
-          ) : (
-            <small className="text-muted-foreground order-3 line-clamp-1 font-normal">
-              {messages.thingAgo("Terakhir terlihat", updatedAt)}
-            </small>
-          )}
-        </div>
-      </div>
-
-      {!isCurrentSession && (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              size="icon-sm"
-              variant="outline_destructive"
-              disabled={isLoading}
-            >
-              <Loader loading={isLoading} icon={{ base: <LogOut /> }} />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{sharedText.revokeSession}</AlertDialogTitle>
-              <AlertDialogDescription>
-                Sesi ini akan segera dihentikan dari perangkat yang dipilih.
-                Yakin ingin melanjutkan?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
-              <AlertDialogAction onClick={clickHandler}>
-                {actions.confirm}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-    </div>
-  );
-}
-
-export function RevokeOtherSessionsButton() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const clickHandler = () => {
-    setIsLoading(true);
-    authClient.revokeOtherSessions({
-      fetchOptions: {
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          toast.success("Semua sesi aktif lainnya berhasil dicabut.");
-          setIsLoading(false);
-          router.refresh();
-        },
-      },
-    });
-  };
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline" disabled={isLoading}>
-          <Loader loading={isLoading} icon={{ base: <MonitorOff /> }} />
-          Cabut Semua Sesi Lain
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-x-2">
-            <MonitorOff /> Cabut Semua Sesi Lain
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Semua sesi aktif lainnya akan dihentikan, kecuali sesi saat ini.
-            Yakin ingin melanjutkan?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
-          <AlertDialogAction onClick={clickHandler}>
-            {actions.confirm}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
-export function DeleteMyAccountButton({ image }: Pick<UserWithRole, "image">) {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const clickHandler = async () => {
-    setIsLoading(true);
-    if (image) await deleteProfilePicture(image);
-
-    authClient.deleteUser(
-      { callbackURL: signInRoute },
-      {
-        onRequest: () => setIsLoading(true),
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          toast.success("Akun Anda berhasil dihapus.");
-          router.push(signInRoute);
-        },
-      },
-    );
-  };
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="outline_destructive"
-          className="w-full md:w-fit"
-          disabled={isLoading}
-        >
-          <Loader loading={isLoading} icon={{ base: <Trash2 /> }} />
-          Hapus Akun
-        </Button>
-      </AlertDialogTrigger>
-
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-destructive flex items-center gap-x-2">
-            <TriangleAlert /> Hapus Akun Anda
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            PERINGATAN : Tindakan ini akan secara permanen menghapus semua data
-            akun Anda. Harap berhati-hati karena aksi ini tidak dapat
-            dibatalkan.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        <AlertDialogFooter>
-          <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
-          <AlertDialogAction
-            className={buttonVariants({ variant: "destructive" })}
-            onClick={clickHandler}
-          >
-            {actions.confirm}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   );
 }
 
@@ -1130,21 +801,24 @@ export function AdminCreateUserDialog() {
 
   const formHandler = ({ newPassword, ...rest }: z.infer<typeof schema>) => {
     setIsLoading(true);
-    authClient.admin.createUser(
-      { password: newPassword, ...rest },
-      {
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          toast.success(`Akun atas nama ${rest.name} berhasil dibuat.`);
-          setIsLoading(false);
-          form.reset();
-          mutate("users");
-        },
+
+    const body = new FormData();
+    body.append("password", newPassword);
+    Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
+
+    toast.promise(action("/api/user", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
+        mutateApi("/api/user");
+        setIsLoading(false);
+        form.reset();
+        return res.message;
       },
-    );
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
   };
 
   return (
@@ -1240,10 +914,10 @@ export function AdminCreateUserDialog() {
 }
 
 function AdminChangeUserRoleForm({
-  data,
+  data: { id, name, role },
   setIsOpen,
 }: {
-  data: UserWithRole;
+  data: User;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -1252,32 +926,31 @@ function AdminChangeUserRoleForm({
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { role: data.role === "user" ? "admin" : "user" },
+    defaultValues: { role: role === "user" ? "admin" : "user" },
   });
 
-  const formHandler = (formData: z.infer<typeof schema>) => {
-    const newRole = formData.role;
-    if (newRole === data.role)
-      return toast.info(messages.noChanges(`role ${data.name}`));
+  const formHandler = ({ role: newRole }: z.infer<typeof schema>) => {
+    if (newRole === role)
+      return toast.info(messages.noChanges(`${name}'s role`));
 
     setIsLoading(true);
-    authClient.admin.setRole(
-      { userId: data.id, role: newRole },
-      {
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          toast.success(
-            `Role ${data.name} berhasil diperbarui menjadi ${newRole}.`,
-          );
-          setIsLoading(false);
-          setIsOpen(false);
-          mutate("users");
-        },
+
+    const body = new FormData();
+    body.append("role", newRole);
+
+    toast.promise(action(`/api/user/${id}`, { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
+        mutateApi("/api/user");
+        setIsLoading(false);
+        setIsOpen(false);
+        return res.message;
       },
-    );
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
   };
 
   return (
@@ -1286,14 +959,14 @@ function AdminChangeUserRoleForm({
         control={form.control}
         name="role"
         render={({ field: { value, onChange } }) => (
-          <FormFieldWrapper label={userFields.role}>
+          <FormFieldWrapper label={`Ubah ${userFields.role}`}>
             <RadioGroupField
               defaultValue={value}
               onValueChange={onChange}
               className="grid grid-cols-2 gap-2"
               data={allRoles.map((value) => {
                 const { displayName, ...rest } = rolesMeta[value];
-                const disabled = value === data.role;
+                const disabled = value === role;
                 return { value, label: displayName, disabled, ...rest };
               })}
               required
@@ -1310,92 +983,31 @@ function AdminChangeUserRoleForm({
   );
 }
 
-function AdminRevokeUserSessionsDialog({
-  id,
-  name,
-}: Pick<UserWithRole, "id" | "name">) {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const clickHandler = () => {
-    setIsLoading(true);
-    authClient.admin.revokeUserSessions(
-      { userId: id },
-      {
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          toast.success(`Semua sesi aktif milik ${name} berhasil dicabut.`);
-          setIsLoading(false);
-        },
-      },
-    );
-  };
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline_warning" disabled={isLoading}>
-          <Loader loading={isLoading} icon={{ base: <MonitorOff /> }} />
-          {sharedText.revokeSession}
-        </Button>
-      </AlertDialogTrigger>
-
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-warning flex items-center gap-x-2">
-            <Info /> Cabut Semua Sesi Aktif untuk {name}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Tindakan ini akan langsung menghentikan semua sesi aktif milik
-            {name}. Yakin ingin melanjutkan?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        <AlertDialogFooter>
-          <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
-
-          <AlertDialogAction
-            className={buttonVariants({ variant: "warning" })}
-            onClick={clickHandler}
-          >
-            {actions.confirm}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
 function AdminRemoveUserDialog({
-  data: { id, name, image },
+  data: { id, name },
   setIsOpen,
 }: {
-  data: Pick<UserWithRole, "id" | "name" | "image">;
+  data: Pick<User, "id" | "name">;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const clickHandler = async () => {
     setIsLoading(true);
-    if (image) await deleteProfilePicture(image);
 
-    authClient.admin.removeUser(
-      { userId: id },
-      {
-        onError: ({ error }) => {
-          toast.error(error.message);
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          toast.success(`Akun atas nama ${name} berhasil dihapus.`);
-          setIsLoading(false);
-          setIsOpen(false);
-          mutate("users");
-        },
+    toast.promise(action(`/api/user/${id}`, { method: "DELETE" }), {
+      loading: messages.loading,
+      success: (res) => {
+        mutateApi("/api/user");
+        setIsLoading(false);
+        setIsOpen(false);
+        return res.message;
       },
-    );
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
   };
 
   return (
@@ -1433,127 +1045,70 @@ function AdminRemoveUserDialog({
   );
 }
 
-function AdminActionRevokeUserSessionsDialog({
-  ids,
-  onSuccess,
-}: {
-  ids: string[];
-  onSuccess: () => void;
-}) {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+// function AdminActionRemoveUsersDialog({
+//   data,
+//   onSuccess,
+// }: {
+//   data: Pick<User, "id" | "name" | "image">[];
+//   onSuccess: () => void;
+// }) {
+//   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const clickHandler = async () => {
-    setIsLoading(true);
-    toast.promise(revokeUserSessions(ids), {
-      loading: messages.loading,
-      error: (e) => {
-        setIsLoading(false);
-        return e;
-      },
-      success: (res) => {
-        setIsLoading(false);
-        onSuccess();
+//   const clickHandler = async () => {
+//     setIsLoading(true);
+//     // toast.promise(deleteUsers(data), {
+//     //   loading: messages.loading,
+//     //   error: (e) => {
+//     //     setIsLoading(false);
+//     //     return e;
+//     //   },
+//     //   success: (res) => {
+//     //     setIsLoading(false);
+//     //     onSuccess();
 
-        const successLength = res.filter(({ success }) => success).length;
-        return `${successLength} dari ${ids.length} sesi pengguna berhasil dicabut.`;
-      },
-    });
-  };
+//     //     router.refresh();
 
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button size="sm" variant="ghost_destructive" disabled={isLoading}>
-          <Loader loading={isLoading} icon={{ base: <MonitorOff /> }} />
-          {sharedText.revokeSession}
-        </Button>
-      </AlertDialogTrigger>
+//     //     const successLength = res.filter(({ success }) => success).length;
+//     //     return messages.success(
+//     //       `${successLength} dari ${data.length} akun pengguna`,
+//     //       "removed",
+//     //     );
+//     //   },
+//     // });
+//   };
 
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-x-2">
-            Cabut Sesi untuk {ids.length} Pengguna
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Ini akan menghentikan semua sesi aktif dari {ids.length} pengguna
-            yang dipilih. Yakin ingin melanjutkan?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+//   return (
+//     <AlertDialog>
+//       <AlertDialogTrigger asChild>
+//         <Button size="sm" variant="ghost_destructive" disabled={isLoading}>
+//           <Loader loading={isLoading} icon={{ base: <Trash2 /> }} />
+//           {actions.remove}
+//         </Button>
+//       </AlertDialogTrigger>
 
-        <AlertDialogFooter>
-          <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
-          <AlertDialogAction
-            className={buttonVariants({ variant: "destructive" })}
-            onClick={clickHandler}
-          >
-            {actions.confirm}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
+//       <AlertDialogContent>
+//         <AlertDialogHeader>
+//           <AlertDialogTitle className="text-destructive flex items-center gap-x-2">
+//             <TriangleAlert /> Hapus {data.length} Akun
+//           </AlertDialogTitle>
+//           <AlertDialogDescription>
+//             PERINGATAN: Tindakan ini akan menghapus {data.length} akun yang
+//             dipilih beserta seluruh datanya secara permanen. Harap berhati-hati
+//             karena aksi ini tidak dapat dibatalkan.
+//           </AlertDialogDescription>
+//         </AlertDialogHeader>
 
-function AdminActionRemoveUsersDialog({
-  data,
-  onSuccess,
-}: {
-  data: Pick<UserWithRole, "id" | "name" | "image">[];
-  onSuccess: () => void;
-}) {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+//         <AlertDialogFooter>
+//           <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
 
-  const clickHandler = async () => {
-    setIsLoading(true);
-    toast.promise(deleteUsers(data), {
-      loading: messages.loading,
-      error: (e) => {
-        setIsLoading(false);
-        return e;
-      },
-      success: (res) => {
-        setIsLoading(false);
-        onSuccess();
-        mutate("users");
-
-        const successLength = res.filter(({ success }) => success).length;
-        return `${successLength} dari ${data.length} akun pengguna berhasil dihapus.`;
-      },
-    });
-  };
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button size="sm" variant="ghost_destructive" disabled={isLoading}>
-          <Loader loading={isLoading} icon={{ base: <Trash2 /> }} />
-          {actions.remove}
-        </Button>
-      </AlertDialogTrigger>
-
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-destructive flex items-center gap-x-2">
-            <TriangleAlert /> Hapus {data.length} Akun
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            PERINGATAN: Tindakan ini akan menghapus {data.length} akun yang
-            dipilih beserta seluruh datanya secara permanen. Harap berhati-hati
-            karena aksi ini tidak dapat dibatalkan.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        <AlertDialogFooter>
-          <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
-
-          <AlertDialogAction
-            className={buttonVariants({ variant: "destructive" })}
-            onClick={clickHandler}
-          >
-            {actions.confirm}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
+//           <AlertDialogAction
+//             className={buttonVariants({ variant: "destructive" })}
+//             onClick={clickHandler}
+//           >
+//             {actions.confirm}
+//           </AlertDialogAction>
+//         </AlertDialogFooter>
+//       </AlertDialogContent>
+//     </AlertDialog>
+//   );
+// }

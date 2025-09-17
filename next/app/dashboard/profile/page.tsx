@@ -1,56 +1,27 @@
 import { DashboardMain } from "@/components/layout/section";
 import {
-  ActiveSessionButton,
   ChangePasswordForm,
-  DeleteMyAccountButton,
-  PersonalInformation,
-  RevokeOtherSessionsButton,
-  UserRoleBadge,
-  UserVerifiedBadge,
+  PersonalInformationCard,
 } from "@/components/modules/user";
 import {
   Card,
-  CardAction,
-  CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { appMeta } from "@/lib/meta";
-import { Role } from "@/lib/permission";
+import { routesMeta } from "@/lib/routes";
 import { getTitle } from "@/lib/utils";
-import { getListSession, requireAuth } from "@/server/action";
 import { Metadata } from "next";
 
 export const metadata: Metadata = { title: getTitle("/dashboard/profile") };
 
-export default async function Page() {
-  const {
-    session: { session, user },
-    meta,
-  } = await requireAuth("/dashboard/profile");
-  const sessionList = await getListSession();
-
+export default function Page() {
   return (
-    <DashboardMain currentPage={meta.displayName} className="items-center">
-      <Card
-        id="personal-information"
-        className="w-full scroll-m-20 lg:max-w-xl"
-      >
-        <CardHeader className="border-b">
-          <CardTitle>Informasi Pribadi</CardTitle>
-          <CardDescription>
-            Perbarui dan kelola informasi profil {appMeta.name} Anda.
-          </CardDescription>
-          <CardAction className="flex flex-col items-end gap-2 md:flex-row-reverse">
-            <UserRoleBadge role={user.role as Role} />
-            {user.emailVerified && <UserVerifiedBadge />}
-          </CardAction>
-        </CardHeader>
-
-        <PersonalInformation {...user} />
-      </Card>
+    <DashboardMain
+      currentPage={routesMeta["/dashboard/profile"].displayName}
+      className="items-center"
+    >
+      <PersonalInformationCard className="w-full scroll-m-20 lg:max-w-xl" />
 
       <Card id="change-password" className="w-full scroll-m-20 lg:max-w-xl">
         <CardHeader className="border-b">
@@ -61,43 +32,6 @@ export default async function Page() {
         </CardHeader>
 
         <ChangePasswordForm />
-      </Card>
-
-      <Card id="active-session" className="w-full scroll-m-20 lg:max-w-xl">
-        <CardHeader className="border-b">
-          <CardTitle>Sesi Aktif</CardTitle>
-          <CardDescription>
-            Tinjau dan kelola sesi yang saat ini sedang masuk ke akun Anda.
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent className="flex flex-col gap-y-2">
-          {sessionList.map((item) => (
-            <ActiveSessionButton
-              key={item.id}
-              currentSessionId={session.id}
-              {...item}
-            />
-          ))}
-        </CardContent>
-
-        <CardFooter className="flex-col items-stretch border-t md:flex-row md:items-center">
-          <RevokeOtherSessionsButton />
-        </CardFooter>
-      </Card>
-
-      <Card id="delete-account" className="w-full scroll-m-20 lg:max-w-xl">
-        <CardHeader className="border-b">
-          <CardTitle className="text-destructive">Hapus Akun</CardTitle>
-          <CardDescription>
-            Peringatan: Tindakan ini bersifat permanen dan tidak dapat
-            dibatalkan.
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <DeleteMyAccountButton {...user} />
-        </CardContent>
       </Card>
     </DashboardMain>
   );

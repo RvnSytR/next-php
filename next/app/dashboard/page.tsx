@@ -1,19 +1,14 @@
 import { DashboardMain } from "@/components/layout/section";
 import { R } from "@/components/ui/motion";
-import { requireAuth } from "@/server/action";
+import { routesMeta } from "@/lib/routes";
 
-export default async function Page() {
-  const { session, meta } = await requireAuth("/dashboard");
-
+export default function Page() {
   return (
     <DashboardMain
-      currentPage={meta.displayName}
+      currentPage={routesMeta["/dashboard"].displayName}
       className="items-center justify-center"
     >
       <R />
-      <pre className="animate-fade delay-500">
-        {JSON.stringify(session, null, 2)}
-      </pre>
     </DashboardMain>
   );
 }

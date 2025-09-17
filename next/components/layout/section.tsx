@@ -18,7 +18,7 @@ export function DashboardMain({
 }: DynamicBreadcrumbProps & { className?: string; children?: ReactNode }) {
   return (
     <>
-      <nav className="bg-background/90 sticky top-0 z-50 flex items-center justify-between gap-x-4 border-b p-4 shadow-xs backdrop-blur-xs">
+      <nav className="bg-background/90 shadow-xs backdrop-blur-xs sticky top-0 z-50 flex items-center justify-between gap-x-4 border-b p-4">
         <div className="flex items-center gap-x-2">
           <SidebarTrigger />
           <Separator orientation="vertical" className="mr-2 h-4" />
@@ -29,7 +29,7 @@ export function DashboardMain({
 
       <div
         className={cn(
-          "relative z-10 container flex flex-1 flex-col gap-y-4 py-4",
+          "container relative z-10 flex flex-1 flex-col gap-y-4 py-4",
           className,
         )}
       >

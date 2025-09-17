@@ -1,6 +1,7 @@
 "use client";
 
 import { actions } from "@/lib/content";
+import { useSession } from "@/lib/hooks/user";
 import { FileType, languageMeta } from "@/lib/meta";
 import { formatNumber, formatPhone, sanitizeNumber } from "@/lib/utils";
 import { zodSchemas } from "@/lib/zod";
@@ -10,6 +11,7 @@ import { Club, Diamond, Heart, Save, Spade, TextIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { ErrorFallback, LoadingFallback } from "../layout/section";
 import { Button } from "../ui/button";
 import { ResetButton } from "../ui/buttons";
 import { Checkbox } from "../ui/checkbox";
@@ -390,6 +392,13 @@ export function ExampleForm() {
       </div>
     </Form>
   );
+}
+
+export function ExampleFetch() {
+  const { data, error, isLoading } = useSession();
+  if (isLoading) return <LoadingFallback />;
+  if (error || !data?.data) return <ErrorFallback error={error} />;
+  return <pre>{JSON.stringify(data, null, 2)}</pre>;
 }
 
 export function ExampleTypography() {

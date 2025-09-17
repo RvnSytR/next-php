@@ -48,7 +48,7 @@ export function FormFieldWrapper({
       {type === "checkbox" ? (
         <div className="flex gap-x-3">
           {children}
-          <div className={cn("grid gap-y-1 pt-0.25", className)}>
+          <div className={cn("pt-0.25 grid gap-y-1", className)}>
             <LabelComp />
             {desc && (
               <FormDescription className={classNames?.formDescription}>

@@ -208,7 +208,7 @@ export function DataTable<TData>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="text-muted-foreground py-4 text-center whitespace-pre-line"
+                  className="text-muted-foreground whitespace-pre-line py-4 text-center"
                 >
                   {messages.empty}
                 </TableCell>

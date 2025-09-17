@@ -95,7 +95,7 @@ export default function Page() {
       <div className="flex flex-col items-center gap-y-4">
         <R />
 
-        <div className="animate-fade flex flex-wrap gap-2 delay-750">
+        <div className="animate-fade delay-750 flex flex-wrap gap-2">
           <ThemeToggle variant="outline_primary" />
 
           <Button variant="outline_primary" asChild>

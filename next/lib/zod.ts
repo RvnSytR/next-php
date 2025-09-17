@@ -9,6 +9,12 @@ z.config(id());
 
 const { user: userFields } = fieldsMeta;
 
+export const zodAPI = z.object({
+  code: z.number(),
+  success: z.boolean(),
+  message: z.string(),
+});
+
 export const zodSchemas = {
   string: (field: string, options?: { min?: number; max?: number }) => {
     let schema = z.string().trim();
@@ -128,6 +134,9 @@ export const zodSchemas = {
 };
 
 export const zodUser = z.object({
+  id: z.uuidv4(),
+  image: z.string().nullable(),
+
   role: z.enum(allRoles),
   email: zodSchemas.email,
   name: zodSchemas.string(userFields.name.label, { min: 1 }),
@@ -148,3 +157,21 @@ export const zodUser = z.object({
       "Mohon setujui ketentuan layanan dan kebijakan privasi untuk melanjutkan.",
   }),
 });
+
+export const zodUserData = zodUser
+  .pick({
+    id: true,
+    email: true,
+    name: true,
+    image: true,
+    role: true,
+  })
+  .extend({
+    updated_at: zodSchemas.updatedAt,
+    created_at: zodSchemas.createdAt,
+  })
+  .transform(({ updated_at, created_at, ...rest }) => ({
+    updatedAt: updated_at,
+    createdAt: created_at,
+    ...rest,
+  }));

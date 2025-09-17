@@ -35,7 +35,6 @@ export const dashboardMenu: Menu[] = [
         subMenu: [
           { label: "Informasi Pribadi" },
           { label: "Ubah Kata Sandi" },
-          { label: "Sesi Aktif" },
           {
             label: "Hapus Akun",
             className: "text-destructive hover:text-destructive",

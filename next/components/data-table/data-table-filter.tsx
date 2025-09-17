@@ -139,7 +139,7 @@ export function ActiveFiltersMobileContainer({
   return (
     <div
       className={cn(
-        "w-full border-t border-b border-dashed shadow-xs",
+        "shadow-xs w-full border-b border-t border-dashed",
         className,
       )}
     >
@@ -255,7 +255,7 @@ export function FilterSelector<TData>({ table }: { table: Table<TData> }) {
 
       <PopoverContent
         align="start"
-        className="w-fit origin-(--radix-popover-content-transform-origin) p-0"
+        className="origin-(--radix-popover-content-transform-origin) w-fit p-0"
       >
         {content}
       </PopoverContent>
@@ -431,7 +431,7 @@ export function FilterSubject<TData>({
 }) {
   const hasIcon = !!meta?.icon;
   return (
-    <span className="flex items-center gap-1.5 px-2 font-medium whitespace-nowrap select-none">
+    <span className="flex select-none items-center gap-1.5 whitespace-nowrap px-2 font-medium">
       {hasIcon && <meta.icon />}
       <span>{meta.displayName}</span>
     </span>
@@ -461,14 +461,14 @@ export function FilterOperator<TData, T extends ColumnDataType>({
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          className="m-0 h-full w-fit rounded-none p-0 px-2 text-xs whitespace-nowrap"
+          className="m-0 h-full w-fit whitespace-nowrap rounded-none p-0 px-2 text-xs"
         >
           <FilterOperatorDisplay filter={filter} filterType={columnMeta.type} />
         </Button>
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-fit origin-(--radix-popover-content-transform-origin) p-0"
+        className="origin-(--radix-popover-content-transform-origin) w-fit p-0"
       >
         <Command loop>
           <CommandInput placeholder="Search..." />
@@ -733,7 +733,7 @@ export function FilterValue<TData, TValue>({
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          className="m-0 h-full w-fit rounded-none p-0 px-2 text-xs whitespace-nowrap"
+          className="m-0 h-full w-fit whitespace-nowrap rounded-none p-0 px-2 text-xs"
         >
           <FilterValueDisplay
             id={id}
@@ -746,7 +746,7 @@ export function FilterValue<TData, TValue>({
       <PopoverContent
         align="start"
         side="bottom"
-        className="w-fit origin-(--radix-popover-content-transform-origin) p-0"
+        className="origin-(--radix-popover-content-transform-origin) w-fit p-0"
       >
         <FitlerValueController
           id={id}
@@ -1060,7 +1060,7 @@ export function FilterValueNumberDisplay<TData, TValue>({
         : filter.values[1];
 
     return (
-      <span className="tracking-tight tabular-nums">
+      <span className="tabular-nums tracking-tight">
         {minValue} and {maxValue}
       </span>
     );
@@ -1071,7 +1071,7 @@ export function FilterValueNumberDisplay<TData, TValue>({
   }
 
   const value = filter.values[0];
-  return <span className="tracking-tight tabular-nums">{value}</span>;
+  return <span className="tabular-nums tracking-tight">{value}</span>;
 }
 
 export function FitlerValueController<TData, TValue>({

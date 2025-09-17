@@ -2,10 +2,9 @@
 
 import { filterFn } from "@/lib/filters";
 import { fieldsMeta } from "@/lib/meta";
-import { Role, rolesMeta } from "@/lib/permission";
+import { rolesMeta, User } from "@/lib/permission";
 import { cn, formatDate } from "@/lib/utils";
 import { Column, createColumnHelper, Row, Table } from "@tanstack/react-table";
-import { UserWithRole } from "better-auth/plugins";
 import {
   ArrowUpDown,
   CalendarCheck2,
@@ -15,12 +14,7 @@ import {
   UserRound,
   UserSquare2,
 } from "lucide-react";
-import {
-  UserAvatar,
-  UserDetailSheet,
-  UserRoleBadge,
-  UserVerifiedBadge,
-} from "../modules/user";
+import { UserAvatar, UserDetailSheet, UserRoleBadge } from "../modules/user";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 
@@ -74,15 +68,15 @@ function cellCheckbox<R>(row: Row<R>, disabled: boolean = false) {
   );
 }
 
-const createUserColumn = createColumnHelper<UserWithRole>();
+const createUserColumn = createColumnHelper<User>();
 export const getUserColumn = (currentUserId: string) => [
-  createUserColumn.display({
-    id: "select",
-    header: ({ table }) => headerCheckbox(table),
-    cell: ({ row }) => cellCheckbox(row),
-    enableHiding: false,
-    enableSorting: false,
-  }),
+  // createUserColumn.display({
+  //   id: "select",
+  //   header: ({ table }) => headerCheckbox(table),
+  //   cell: ({ row }) => cellCheckbox(row),
+  //   enableHiding: false,
+  //   enableSorting: false,
+  // }),
   createUserColumn.display({
     id: fieldsMeta.num,
     header: fieldsMeta.num,
@@ -105,14 +99,8 @@ export const getUserColumn = (currentUserId: string) => [
     id: userFields.email.label,
     header: ({ column }) => headerButton(column, userFields.email.label),
     cell: ({ row }) => {
-      const { id, email, emailVerified } = row.original;
-      if (id === currentUserId) {
-        return (
-          <div className="flex items-center gap-x-2">
-            {email} {emailVerified && <UserVerifiedBadge withoutText />}
-          </div>
-        );
-      }
+      const { id, email } = row.original;
+      if (id === currentUserId) return email;
       return <UserDetailSheet data={row.original} />;
     },
     filterFn: filterFn("text"),
@@ -128,14 +116,14 @@ export const getUserColumn = (currentUserId: string) => [
   createUserColumn.accessor(({ role }) => role, {
     id: userFields.role,
     header: ({ column }) => headerButton(column, userFields.role),
-    cell: ({ row }) => <UserRoleBadge role={row.original.role as Role} />,
+    cell: ({ row }) => <UserRoleBadge role={row.original.role} />,
     filterFn: filterFn("option"),
     meta: {
       displayName: userFields.role,
       type: "option",
       icon: CircleDot,
       transformOptionFn: (value) => {
-        const { displayName, icon } = rolesMeta[value as Role];
+        const { displayName, icon } = rolesMeta[value];
         return { value, label: displayName, icon };
       },
     },

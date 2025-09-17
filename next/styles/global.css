@@ -218,7 +218,7 @@
   }
 
   h1 {
-    @apply scroll-m-20 text-4xl font-bold tracking-tight text-balance;
+    @apply scroll-m-20 text-balance text-4xl font-bold tracking-tight;
   }
 
   h2 {
@@ -255,7 +255,7 @@
   }
 
   form {
-    @apply flex flex-col gap-x-2 gap-y-4 has-data-[slot=card-content]:gap-y-6;
+    @apply has-data-[slot=card-content]:gap-y-6 flex flex-col gap-x-2 gap-y-4;
   }
 }
 

@@ -35,7 +35,7 @@ export function DataTableSearch<TData>({
         onChange={(e) => table.setGlobalFilter(String(e.target.value))}
         className="h-8 lg:pr-12"
       />
-      <CommandShortcut className="absolute inset-y-0 right-3 hidden items-center select-none lg:flex">
+      <CommandShortcut className="absolute inset-y-0 right-3 hidden select-none items-center lg:flex">
         ⌘+K
       </CommandShortcut>
     </InputWrapper>

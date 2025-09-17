@@ -1,9 +1,5 @@
 import { Tagline } from "@/components/layout/section";
-import {
-  SignInForm,
-  SignOnGithubButton,
-  SignUpForm,
-} from "@/components/modules/user";
+import { SignInForm, SignUpForm } from "@/components/modules/user";
 import {
   Card,
   CardContent,
@@ -24,7 +20,7 @@ export default function Page() {
   return (
     <main className="container flex min-h-dvh items-center justify-center">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+        <CardHeader className="border-b text-center">
           <CardTitle className="mx-auto">
             <Link href="/">
               <h3>{appMeta.name}</h3>
@@ -49,19 +45,9 @@ export default function Page() {
               <SignUpForm />
             </TabsContent>
           </Tabs>
-
-          <div className="flex items-center gap-x-4">
-            <div className="grow border-t before:border-t" />
-            <small className="text-muted-foreground text-xs font-medium">
-              Atau
-            </small>
-            <div className="grow border-t after:border-t" />
-          </div>
-
-          <SignOnGithubButton />
         </CardContent>
 
-        <CardFooter className="justify-center text-center">
+        <CardFooter className="justify-center border-t text-center">
           <Tagline />
         </CardFooter>
       </Card>
