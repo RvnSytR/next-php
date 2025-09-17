@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "@/lib/hooks/user";
+import { useSession } from "@/lib/hooks";
 import { routesMeta } from "@/lib/routes";
 import { getActiveRoute, getMenuByRole, toKebabCase } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";

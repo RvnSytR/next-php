@@ -1,11 +1,10 @@
 "use client";
 
 import { actions, messages } from "@/lib/content";
-import { action, mutateApi } from "@/lib/fetcher";
-import { useIsMobile } from "@/lib/hooks/use-mobile";
-import { useSession, useUser } from "@/lib/hooks/user";
+import { useIsMobile, useSession, useUser } from "@/lib/hooks";
 import { appMeta, fieldsMeta, fileMeta } from "@/lib/meta";
 import { allRoles, Role, rolesMeta, User } from "@/lib/permission";
+import { phpAction, phpMutate } from "@/lib/php";
 import { dashboardRoute, signInRoute } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { zodSchemas, zodUser } from "@/lib/zod";
@@ -266,7 +265,7 @@ export function SignOutButton() {
       disabled={isLoading}
       onClick={() => {
         setIsLoading(true);
-        toast.promise(action("/api/sign", { method: "DELETE" }), {
+        toast.promise(phpAction("/api/sign", { method: "DELETE" }), {
           loading: messages.loading,
           success: (res) => {
             router.push(signInRoute);
@@ -301,7 +300,7 @@ export function SignInForm() {
     const body = new FormData();
     Object.entries(formData).forEach(([k, v]) => body.append(k, v));
 
-    toast.promise(action("/api/sign", { body, method: "POST" }), {
+    toast.promise(phpAction("/api/sign", { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
         router.push(dashboardRoute);
@@ -375,7 +374,7 @@ export function SignUpForm() {
     body.append("role", "user");
     Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
 
-    toast.promise(action("/api/user", { body, method: "POST" }), {
+    toast.promise(phpAction("/api/user", { body, method: "POST" }), {
       loading: messages.loading,
       success: () => {
         setIsLoading(false);
@@ -499,11 +498,11 @@ function ProfilePicture({ name, image }: Pick<User, "name" | "image">) {
     const body = new FormData();
     body.append("image", files[0]);
 
-    toast.promise(action("/api/profile", { body, method: "POST" }), {
+    toast.promise(phpAction("/api/profile", { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
         setIsChange(false);
-        mutateApi("/api/profile");
+        phpMutate("/api/profile");
         return res.message;
       },
       error: (e) => {
@@ -515,11 +514,11 @@ function ProfilePicture({ name, image }: Pick<User, "name" | "image">) {
 
   const deleteHandler = async () => {
     setIsRemoved(true);
-    toast.promise(action("/api/profile", { method: "DELETE" }), {
+    toast.promise(phpAction("/api/profile", { method: "DELETE" }), {
       loading: messages.loading,
       success: (res) => {
         setIsRemoved(false);
-        mutateApi("/api/profile");
+        phpMutate("/api/profile");
         return res.message;
       },
       error: (e) => {
@@ -613,11 +612,11 @@ function PersonalInformation({ ...props }: User) {
     const body = new FormData();
     body.append("name", newName);
 
-    toast.promise(action("/api/profile", { body, method: "POST" }), {
+    toast.promise(phpAction("/api/profile", { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
         setIsLoading(false);
-        mutateApi("/api/profile");
+        phpMutate("/api/profile");
         return res.message;
       },
       error: (e) => {
@@ -699,7 +698,7 @@ export function ChangePasswordForm() {
     body.append("password", currentPassword);
     Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
 
-    toast.promise(action("/api/user/password", { body, method: "POST" }), {
+    toast.promise(phpAction("/api/user/password", { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
         setIsLoading(false);
@@ -806,10 +805,10 @@ export function AdminCreateUserDialog() {
     body.append("password", newPassword);
     Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
 
-    toast.promise(action("/api/user", { body, method: "POST" }), {
+    toast.promise(phpAction("/api/user", { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
-        mutateApi("/api/user");
+        phpMutate("/api/user");
         setIsLoading(false);
         form.reset();
         return res.message;
@@ -938,10 +937,10 @@ function AdminChangeUserRoleForm({
     const body = new FormData();
     body.append("role", newRole);
 
-    toast.promise(action(`/api/user/${id}`, { body, method: "POST" }), {
+    toast.promise(phpAction(`/api/user/${id}`, { body, method: "POST" }), {
       loading: messages.loading,
       success: (res) => {
-        mutateApi("/api/user");
+        phpMutate("/api/user");
         setIsLoading(false);
         setIsOpen(false);
         return res.message;
@@ -995,10 +994,10 @@ function AdminRemoveUserDialog({
   const clickHandler = async () => {
     setIsLoading(true);
 
-    toast.promise(action(`/api/user/${id}`, { method: "DELETE" }), {
+    toast.promise(phpAction(`/api/user/${id}`, { method: "DELETE" }), {
       loading: messages.loading,
       success: (res) => {
-        mutateApi("/api/user");
+        phpMutate("/api/user");
         setIsLoading(false);
         setIsOpen(false);
         return res.message;

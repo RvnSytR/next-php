@@ -1,7 +1,6 @@
 "use client";
 
 import { actions } from "@/lib/content";
-import { useSession } from "@/lib/hooks/user";
 import { FileType, languageMeta } from "@/lib/meta";
 import { formatNumber, formatPhone, sanitizeNumber } from "@/lib/utils";
 import { zodSchemas } from "@/lib/zod";
@@ -11,7 +10,6 @@ import { Club, Diamond, Heart, Save, Spade, TextIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ErrorFallback, LoadingFallback } from "../layout/section";
 import { Button } from "../ui/button";
 import { ResetButton } from "../ui/buttons";
 import { Checkbox } from "../ui/checkbox";
@@ -30,7 +28,6 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
-// import { uploadFiles } from "@/server/s3";
 
 const card = ["spade", "heart", "diamond", "club"] as const;
 const selectAndRadioData = [
@@ -394,13 +391,6 @@ export function ExampleForm() {
   );
 }
 
-export function ExampleFetch() {
-  const { data, error, isLoading } = useSession();
-  if (isLoading) return <LoadingFallback />;
-  if (error || !data?.data) return <ErrorFallback error={error} />;
-  return <pre>{JSON.stringify(data, null, 2)}</pre>;
-}
-
 export function ExampleTypography() {
   return (
     <div className="[&>p]:text-foreground/90 mx-auto max-w-4xl space-y-6 py-8">
@@ -465,3 +455,10 @@ export function ExampleTypography() {
     </div>
   );
 }
+
+// export function ExampleFetch() {
+//   const { data, error, isLoading } = useSession();
+//   if (isLoading) return <LoadingFallback />;
+//   if (error || !data?.data) return <ErrorFallback error={error} />;
+//   return <pre>{JSON.stringify(data, null, 2)}</pre>;
+// }

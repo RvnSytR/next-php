@@ -1,16 +1,16 @@
 import z from "zod";
-import { useApiSWR, UseAPISWRConfig } from "../fetcher";
+import { usePhpSWR, usePhpSWRConfig } from "../php";
 import { zodAPI, zodUserData } from "../zod";
 
-export function useSession(config?: UseAPISWRConfig) {
-  return useApiSWR(
+export function useSession(config?: usePhpSWRConfig) {
+  return usePhpSWR(
     "/api/profile",
     zodAPI.extend({ data: zodUserData.nullable() }),
     config,
   );
 }
 
-export function useUser(config?: UseAPISWRConfig) {
+export function useUser(config?: usePhpSWRConfig) {
   const data = z.array(zodUserData);
-  return useApiSWR("/api/user", zodAPI.extend({ data }), config);
+  return usePhpSWR("/api/user", zodAPI.extend({ data }), config);
 }
