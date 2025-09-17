@@ -1,0 +1,1114 @@
+"use client";
+
+import { actions, messages } from "@/lib/content";
+import { action, mutateApi } from "@/lib/fetcher";
+import { useIsMobile } from "@/lib/hooks/use-mobile";
+import { useSession, useUser } from "@/lib/hooks/user";
+import { appMeta, fieldsMeta, fileMeta } from "@/lib/meta";
+import { allRoles, Role, rolesMeta, User } from "@/lib/permission";
+import { dashboardRoute, signInRoute } from "@/lib/routes";
+import { cn } from "@/lib/utils";
+import { zodSchemas, zodUser } from "@/lib/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  LogIn,
+  LogOut,
+  Save,
+  Trash2,
+  TriangleAlert,
+  UserRoundPlus,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { getUserColumn } from "../data-table/column";
+import { DataTable } from "../data-table/data-table";
+import {
+  ErrorFallback,
+  LoadingFallback,
+  SheetDetails,
+} from "../layout/section";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
+import { Button, buttonVariants } from "../ui/button";
+import { ResetButton } from "../ui/buttons";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Checkbox } from "../ui/checkbox";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Form, FormControl, FormField } from "../ui/form";
+import { FormFieldWrapper, TextFields } from "../ui/form-fields";
+import { Loader } from "../ui/icons";
+import { Label } from "../ui/label";
+import { RadioGroupField } from "../ui/radio-group";
+import { Separator } from "../ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "../ui/sheet";
+import { SidebarMenuButton } from "../ui/sidebar";
+import { Skeleton } from "../ui/skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+
+const userFields = fieldsMeta.user;
+
+const sharedText = {
+  signIn: "Berhasil masuk - Selamat datang!",
+  signOn: (social: string) => `Lanjutkan dengan ${social}`,
+
+  passwordNotMatch: "Kata sandi tidak cocok - silakan periksa kembali.",
+  revokeSession: "Cabut Sesi",
+};
+
+/*
+ * --- User ---
+ */
+
+export function UserRoleBadge({
+  role,
+  className,
+}: {
+  role: Role;
+  className?: string;
+}) {
+  const { displayName, desc, icon: Icon, color } = rolesMeta[role];
+  return (
+    <Tooltip>
+      <TooltipTrigger className={className} asChild>
+        <Badge
+          variant="outline"
+          style={
+            {
+              "--badge-color-light":
+                typeof color === "string" ? color : color.light,
+              "--badge-color-dark":
+                typeof color === "string" ? color : color.dark,
+            } as React.CSSProperties
+          }
+          className={cn(
+            "border-[var(--badge-color-light)] text-[var(--badge-color-light)] capitalize dark:border-[var(--badge-color-dark)] dark:text-[var(--badge-color-dark)]",
+          )}
+        >
+          <Icon /> {displayName ?? role}
+        </Badge>
+      </TooltipTrigger>
+      <TooltipContent>{desc}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+export function UserAvatar({
+  image,
+  name,
+  className,
+  classNames,
+}: Pick<User, "image" | "name"> & {
+  className?: string;
+  classNames?: { image?: string; fallback?: string };
+}) {
+  return (
+    <Avatar className={cn("rounded-xl", className)}>
+      <AvatarImage
+        src={image ? `${appMeta.api.origin}${image}` : undefined}
+        className={cn("rounded-xl", classNames?.image)}
+      />
+      <AvatarFallback className={cn("rounded-xl", classNames?.fallback)}>
+        {name.slice(0, 2)}
+      </AvatarFallback>
+    </Avatar>
+  );
+}
+
+export function UserDataTable() {
+  const { data: users, error: usersError, isLoading: usersLoading } = useUser();
+  const {
+    data: session,
+    error: sessionError,
+    isLoading: sessionLoading,
+  } = useSession();
+
+  const isLoading = usersLoading || sessionLoading;
+  const error = usersError ?? sessionError;
+
+  if (isLoading) return <LoadingFallback />;
+  if (error || !users?.data || !session?.data?.id)
+    return <ErrorFallback error={error} />;
+
+  const id = session?.data?.id;
+
+  return (
+    <DataTable
+      data={users.data}
+      columns={getUserColumn(id)}
+      searchPlaceholder="Cari Pengguna..."
+      enableRowSelection={({ original }) => original.id !== id}
+      // onRowSelection={(data, table) => {
+      //   const filteredData = data.map(({ original }) => original);
+      //   const clearRowSelection = () => table.resetRowSelection();
+
+      //   return (
+      //     <DropdownMenu>
+      //       <DropdownMenuTrigger asChild>
+      //         <Button size="sm" variant="outline">
+      //           <Settings2 /> {actions.action}
+      //         </Button>
+      //       </DropdownMenuTrigger>
+      //       <DropdownMenuContent>
+      //         <DropdownMenuLabel className="text-center">
+      //           Akun dipilih: {filteredData.length}
+      //         </DropdownMenuLabel>
+
+      //         <DropdownMenuSeparator />
+
+      //         <DropdownMenuItem asChild>
+      //           <AdminActionRemoveUsersDialog
+      //             data={filteredData}
+      //             onSuccess={clearRowSelection}
+      //           />
+      //         </DropdownMenuItem>
+      //       </DropdownMenuContent>
+      //     </DropdownMenu>
+      //   );
+      // }}
+    />
+  );
+}
+
+export function UserDetailSheet({ data }: { data: User }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const details = [
+    { label: "ID Pengguna", content: data.id.slice(0, 7) },
+    { label: userFields.email.label, content: data.email },
+    { label: fieldsMeta.updatedAt, content: messages.dateAgo(data.updatedAt) },
+    { label: fieldsMeta.createdAt, content: messages.dateAgo(data.createdAt) },
+  ];
+
+  return (
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <SheetTrigger className="link">{data.email}</SheetTrigger>
+
+      <SheetContent>
+        <SheetHeader className="flex-row items-center">
+          <UserAvatar {...data} className="size-12" />
+
+          <div className="flex flex-col">
+            <SheetTitle className="text-base">Detail {data.name}</SheetTitle>
+            <SheetDescription>
+              Lihat informasi lengkap tentang akun {data.name}
+            </SheetDescription>
+          </div>
+        </SheetHeader>
+
+        <div className="flex flex-col gap-y-3 overflow-y-auto px-4">
+          <Separator />
+
+          <div className="flex items-center gap-x-2">
+            <UserRoleBadge role={data.role} />
+          </div>
+
+          <SheetDetails data={details} />
+
+          <Separator />
+
+          <AdminChangeUserRoleForm data={data} setIsOpen={setIsOpen} />
+        </div>
+
+        <SheetFooter>
+          <AdminRemoveUserDialog data={data} setIsOpen={setIsOpen} />
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+export function SignOutButton() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  return (
+    <SidebarMenuButton
+      variant="outline_destructive"
+      className="text-destructive hover:text-destructive justify-center"
+      disabled={isLoading}
+      onClick={() => {
+        setIsLoading(true);
+        toast.promise(action("/api/sign", { method: "DELETE" }), {
+          loading: messages.loading,
+          success: (res) => {
+            router.push(signInRoute);
+            return res.message;
+          },
+          error: (e) => {
+            setIsLoading(false);
+            return e.message;
+          },
+        });
+      }}
+    >
+      <Loader loading={isLoading} icon={{ base: <LogOut /> }} /> Keluar
+    </SidebarMenuButton>
+  );
+}
+
+export function SignInForm() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const schema = zodUser.pick({ email: true, password: true });
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const formHandler = (formData: z.infer<typeof schema>) => {
+    setIsLoading(true);
+
+    const body = new FormData();
+    Object.entries(formData).forEach(([k, v]) => body.append(k, v));
+
+    toast.promise(action("/api/sign", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
+        router.push(dashboardRoute);
+        return res.message;
+      },
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
+  };
+
+  return (
+    <Form form={form} onSubmit={formHandler}>
+      <FormField
+        control={form.control}
+        name="email"
+        render={({ field }) => (
+          <TextFields type="email" field={field} {...userFields.email} />
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="password"
+        render={({ field }) => (
+          <TextFields type="password" field={field} {...userFields.password} />
+        )}
+      />
+
+      <Button type="submit" disabled={isLoading}>
+        <Loader loading={isLoading} icon={{ base: <LogIn /> }} />
+        Masuk ke Dashboard
+      </Button>
+    </Form>
+  );
+}
+
+export function SignUpForm() {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const schema = zodUser
+    .pick({
+      name: true,
+      email: true,
+      newPassword: true,
+      confirmPassword: true,
+      agreement: true,
+    })
+    .refine((sc) => sc.newPassword === sc.confirmPassword, {
+      message: sharedText.passwordNotMatch,
+      path: ["confirmPassword"],
+    });
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: "",
+      email: "",
+      newPassword: "",
+      confirmPassword: "",
+      agreement: false,
+    },
+  });
+
+  const formHandler = ({ newPassword, ...rest }: z.infer<typeof schema>) => {
+    setIsLoading(true);
+
+    const body = new FormData();
+    body.append("password", newPassword);
+    body.append("role", "user");
+    Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
+
+    toast.promise(action("/api/user", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: () => {
+        setIsLoading(false);
+        form.reset();
+        return "Akun berhasil dibuat! Silakan masuk untuk melanjutkan.";
+      },
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
+  };
+
+  return (
+    <Form form={form} onSubmit={formHandler}>
+      <FormField
+        control={form.control}
+        name="name"
+        render={({ field }) => (
+          <TextFields type="text" field={field} {...userFields.name} />
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="email"
+        render={({ field }) => (
+          <TextFields type="email" field={field} {...userFields.email} />
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="newPassword"
+        render={({ field }) => (
+          <TextFields
+            type="password"
+            field={field}
+            {...userFields.newPassword}
+          />
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="confirmPassword"
+        render={({ field }) => (
+          <TextFields
+            type="password"
+            field={field}
+            {...userFields.confirmPassword}
+          />
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="agreement"
+        render={({ field: { value, onChange } }) => (
+          <FormFieldWrapper
+            type="checkbox"
+            label="Setujui syarat dan ketentuan"
+            desc={`Saya menyetujui ketentuan layanan dan kebijakan privasi ${appMeta.name}.`}
+          >
+            <FormControl>
+              <Checkbox checked={value} onCheckedChange={onChange} />
+            </FormControl>
+          </FormFieldWrapper>
+        )}
+      />
+
+      <Button type="submit" disabled={isLoading}>
+        <Loader loading={isLoading} icon={{ base: <UserRoundPlus /> }} />
+        Daftar Sekarang
+      </Button>
+    </Form>
+  );
+}
+
+export function PersonalInformationCard({ className }: { className?: string }) {
+  const { data, error, isLoading } = useSession();
+  return (
+    <Card id="personal-information" className={className}>
+      <CardHeader className="border-b">
+        <CardTitle>Informasi Pribadi</CardTitle>
+        <CardDescription>
+          Perbarui dan kelola informasi profil {appMeta.name} Anda.
+        </CardDescription>
+        <CardAction>
+          {data?.data ? (
+            <UserRoleBadge role={data.data.role} />
+          ) : (
+            <Skeleton className="h-6 w-18" />
+          )}
+        </CardAction>
+      </CardHeader>
+
+      {isLoading && <LoadingFallback />}
+      {error && <ErrorFallback error={error} className="mx-6" hideText />}
+
+      {data?.data && <PersonalInformation {...data.data} />}
+    </Card>
+  );
+}
+
+function ProfilePicture({ name, image }: Pick<User, "name" | "image">) {
+  const inputAvatarRef = useRef<HTMLInputElement>(null);
+  const [isChange, setIsChange] = useState<boolean>(false);
+  const [isRemoved, setIsRemoved] = useState<boolean>(false);
+
+  const contentType = "image";
+  const schema = zodSchemas.file(contentType);
+
+  const changeHandler = async (fileList: FileList) => {
+    setIsChange(true);
+    const files = Array.from(fileList).map((f) => f);
+
+    const parseRes = schema.safeParse(files);
+    if (!parseRes.success) return toast.error(parseRes.error.message);
+
+    const body = new FormData();
+    body.append("image", files[0]);
+
+    toast.promise(action("/api/profile", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
+        setIsChange(false);
+        mutateApi("/api/profile");
+        return res.message;
+      },
+      error: (e) => {
+        setIsChange(false);
+        return e.message;
+      },
+    });
+  };
+
+  const deleteHandler = async () => {
+    setIsRemoved(true);
+    toast.promise(action("/api/profile", { method: "DELETE" }), {
+      loading: messages.loading,
+      success: (res) => {
+        setIsRemoved(false);
+        mutateApi("/api/profile");
+        return res.message;
+      },
+      error: (e) => {
+        setIsRemoved(false);
+        return e.message;
+      },
+    });
+  };
+
+  return (
+    <div className="flex items-center gap-x-4">
+      <UserAvatar name={name} image={image} className="size-24" />
+
+      <input
+        type="file"
+        ref={inputAvatarRef}
+        accept={fileMeta[contentType].mimeTypes.join(", ")}
+        className="hidden"
+        onChange={(e) => {
+          const fileList = e.currentTarget.files;
+          if (fileList) changeHandler(fileList);
+        }}
+      />
+
+      <div className="flex flex-col gap-y-2">
+        <Label>{userFields.avatar}</Label>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={isChange || isRemoved}
+            onClick={() => inputAvatarRef.current?.click()}
+          >
+            <Loader loading={isChange} /> {actions.upload} Avatar
+          </Button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline_destructive"
+                disabled={!image || isChange || isRemoved}
+              >
+                <Loader loading={isRemoved} /> {actions.remove}
+              </Button>
+            </AlertDialogTrigger>
+
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Hapus Foto Profil</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Aksi ini akan menghapus foto profil Anda saat ini. Yakin ingin
+                  melanjutkan?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
+                <AlertDialogAction
+                  className={buttonVariants({ variant: "destructive" })}
+                  onClick={() => deleteHandler()}
+                >
+                  {actions.confirm}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PersonalInformation({ ...props }: User) {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const { name, email } = props;
+  const schema = zodUser.pick({ name: true, email: true });
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: { name, email },
+  });
+
+  const formHandler = ({ name: newName }: z.infer<typeof schema>) => {
+    if (newName === name) return toast.info(messages.noChanges("profil Anda"));
+
+    setIsLoading(true);
+    const body = new FormData();
+    body.append("name", newName);
+
+    toast.promise(action("/api/profile", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
+        setIsLoading(false);
+        mutateApi("/api/profile");
+        return res.message;
+      },
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
+  };
+
+  return (
+    <Form form={form} onSubmit={formHandler}>
+      <CardContent className="flex flex-col gap-y-4">
+        <ProfilePicture {...props} />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <TextFields
+              type="email"
+              field={field}
+              disabled
+              {...userFields.email}
+            />
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <TextFields type="text" field={field} {...userFields.name} />
+          )}
+        />
+      </CardContent>
+
+      <CardFooter className="flex-col items-stretch border-t md:flex-row md:items-center">
+        <Button type="submit" disabled={isLoading}>
+          <Loader loading={isLoading} icon={{ base: <Save /> }} />
+          {actions.update}
+        </Button>
+
+        <ResetButton fn={form.reset} />
+      </CardFooter>
+    </Form>
+  );
+}
+
+export function ChangePasswordForm() {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const schema = zodUser
+    .pick({
+      currentPassword: true,
+      newPassword: true,
+      confirmPassword: true,
+    })
+    .refine((sc) => sc.newPassword === sc.confirmPassword, {
+      message: sharedText.passwordNotMatch,
+      path: ["confirmPassword"],
+    });
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
+  const formHandler = ({
+    currentPassword,
+    ...rest
+  }: z.infer<typeof schema>) => {
+    setIsLoading(true);
+
+    const body = new FormData();
+    body.append("password", currentPassword);
+    Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
+
+    toast.promise(action("/api/user/password", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
+        setIsLoading(false);
+        form.reset();
+        return res.message;
+      },
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
+  };
+
+  return (
+    <Form form={form} onSubmit={formHandler}>
+      <CardContent className="flex flex-col gap-y-4">
+        <FormField
+          control={form.control}
+          name="currentPassword"
+          render={({ field }) => (
+            <TextFields
+              type="password"
+              field={field}
+              {...userFields.currentPassword}
+            />
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="newPassword"
+          render={({ field }) => (
+            <TextFields
+              type="password"
+              field={field}
+              {...userFields.newPassword}
+            />
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <TextFields
+              type="password"
+              field={field}
+              {...userFields.confirmPassword}
+            />
+          )}
+        />
+      </CardContent>
+
+      <CardFooter className="flex-col items-stretch border-t md:flex-row md:items-center">
+        <Button type="submit" disabled={isLoading}>
+          <Loader loading={isLoading} icon={{ base: <Save /> }} />
+          {actions.update}
+        </Button>
+
+        <ResetButton fn={form.reset} />
+      </CardFooter>
+    </Form>
+  );
+}
+
+/*
+ * --- ADMIN ---
+ */
+
+export function AdminCreateUserDialog() {
+  const isMobile = useIsMobile();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const schema = zodUser
+    .pick({
+      name: true,
+      email: true,
+      newPassword: true,
+      confirmPassword: true,
+      role: true,
+    })
+    .refine((sc) => sc.newPassword === sc.confirmPassword, {
+      message: sharedText.passwordNotMatch,
+      path: ["confirmPassword"],
+    });
+
+  const Icon = UserRoundPlus;
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: "",
+      email: "",
+      newPassword: "",
+      confirmPassword: "",
+      role: "user",
+    },
+  });
+
+  const formHandler = ({ newPassword, ...rest }: z.infer<typeof schema>) => {
+    setIsLoading(true);
+
+    const body = new FormData();
+    body.append("password", newPassword);
+    Object.entries(rest).forEach(([k, v]) => body.append(k, v.toString()));
+
+    toast.promise(action("/api/user", { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
+        mutateApi("/api/user");
+        setIsLoading(false);
+        form.reset();
+        return res.message;
+      },
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button size={isMobile ? "default" : "sm"} className="w-full">
+          <Icon /> Tambah Pengguna
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Tambah Pengguna</DialogTitle>
+          <DialogDescription>
+            Isi detail pengguna baru dengan lengkap. Pastikan semua bidang wajib
+            diisi.
+          </DialogDescription>
+        </DialogHeader>
+
+        <Form form={form} onSubmit={formHandler}>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <TextFields type="text" field={field} {...userFields.name} />
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <TextFields type="email" field={field} {...userFields.email} />
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="newPassword"
+            render={({ field }) => (
+              <TextFields
+                type="password"
+                field={field}
+                {...userFields.newPassword}
+              />
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <TextFields
+                type="password"
+                field={field}
+                {...userFields.confirmPassword}
+              />
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field: { value, onChange } }) => (
+              <FormFieldWrapper label={userFields.role}>
+                <RadioGroupField
+                  defaultValue={value}
+                  onValueChange={onChange}
+                  className="grid grid-cols-2 gap-2"
+                  data={allRoles.map((value) => {
+                    const { displayName, ...rest } = rolesMeta[value];
+                    return { value, label: displayName, ...rest };
+                  })}
+                  required
+                />
+              </FormFieldWrapper>
+            )}
+          />
+
+          <Separator />
+
+          <DialogFooter>
+            <DialogClose>{actions.cancel}</DialogClose>
+            <Button type="submit" disabled={isLoading}>
+              <Loader loading={isLoading} icon={{ base: <Icon /> }} />
+              {actions.add}
+            </Button>
+          </DialogFooter>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AdminChangeUserRoleForm({
+  data: { id, name, role },
+  setIsOpen,
+}: {
+  data: User;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const schema = zodUser.pick({ role: true });
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: { role: role === "user" ? "admin" : "user" },
+  });
+
+  const formHandler = ({ role: newRole }: z.infer<typeof schema>) => {
+    if (newRole === role)
+      return toast.info(messages.noChanges(`${name}'s role`));
+
+    setIsLoading(true);
+
+    const body = new FormData();
+    body.append("role", newRole);
+
+    toast.promise(action(`/api/user/${id}`, { body, method: "POST" }), {
+      loading: messages.loading,
+      success: (res) => {
+        mutateApi("/api/user");
+        setIsLoading(false);
+        setIsOpen(false);
+        return res.message;
+      },
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
+  };
+
+  return (
+    <Form form={form} onSubmit={formHandler}>
+      <FormField
+        control={form.control}
+        name="role"
+        render={({ field: { value, onChange } }) => (
+          <FormFieldWrapper label={`Ubah ${userFields.role}`}>
+            <RadioGroupField
+              defaultValue={value}
+              onValueChange={onChange}
+              className="grid grid-cols-2 gap-2"
+              data={allRoles.map((value) => {
+                const { displayName, ...rest } = rolesMeta[value];
+                const disabled = value === role;
+                return { value, label: displayName, disabled, ...rest };
+              })}
+              required
+            />
+          </FormFieldWrapper>
+        )}
+      />
+
+      <Button type="submit" disabled={isLoading}>
+        <Loader loading={isLoading} icon={{ base: <Save /> }} />
+        {actions.update}
+      </Button>
+    </Form>
+  );
+}
+
+function AdminRemoveUserDialog({
+  data: { id, name },
+  setIsOpen,
+}: {
+  data: Pick<User, "id" | "name">;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const clickHandler = async () => {
+    setIsLoading(true);
+
+    toast.promise(action(`/api/user/${id}`, { method: "DELETE" }), {
+      loading: messages.loading,
+      success: (res) => {
+        mutateApi("/api/user");
+        setIsLoading(false);
+        setIsOpen(false);
+        return res.message;
+      },
+      error: (e) => {
+        setIsLoading(false);
+        return e.message;
+      },
+    });
+  };
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline_destructive" disabled={isLoading}>
+          <Loader loading={isLoading} icon={{ base: <Trash2 /> }} />
+          {`${actions.remove} ${name}`}
+        </Button>
+      </AlertDialogTrigger>
+
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-destructive flex items-center gap-x-2">
+            <TriangleAlert /> Hapus Akun {name}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            PERINGATAN: Tindakan ini akaPn menghapus akun {name} beserta seluruh
+            datanya secara permanen. Harap berhati-hati karena aksi ini tidak
+            dapat dibatalkan.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
+          <AlertDialogAction
+            className={buttonVariants({ variant: "destructive" })}
+            onClick={clickHandler}
+          >
+            {actions.confirm}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+// function AdminActionRemoveUsersDialog({
+//   data,
+//   onSuccess,
+// }: {
+//   data: Pick<User, "id" | "name" | "image">[];
+//   onSuccess: () => void;
+// }) {
+//   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+//   const clickHandler = async () => {
+//     setIsLoading(true);
+//     // toast.promise(deleteUsers(data), {
+//     //   loading: messages.loading,
+//     //   error: (e) => {
+//     //     setIsLoading(false);
+//     //     return e;
+//     //   },
+//     //   success: (res) => {
+//     //     setIsLoading(false);
+//     //     onSuccess();
+
+//     //     router.refresh();
+
+//     //     const successLength = res.filter(({ success }) => success).length;
+//     //     return messages.success(
+//     //       `${successLength} dari ${data.length} akun pengguna`,
+//     //       "removed",
+//     //     );
+//     //   },
+//     // });
+//   };
+
+//   return (
+//     <AlertDialog>
+//       <AlertDialogTrigger asChild>
+//         <Button size="sm" variant="ghost_destructive" disabled={isLoading}>
+//           <Loader loading={isLoading} icon={{ base: <Trash2 /> }} />
+//           {actions.remove}
+//         </Button>
+//       </AlertDialogTrigger>
+
+//       <AlertDialogContent>
+//         <AlertDialogHeader>
+//           <AlertDialogTitle className="text-destructive flex items-center gap-x-2">
+//             <TriangleAlert /> Hapus {data.length} Akun
+//           </AlertDialogTitle>
+//           <AlertDialogDescription>
+//             PERINGATAN: Tindakan ini akan menghapus {data.length} akun yang
+//             dipilih beserta seluruh datanya secara permanen. Harap berhati-hati
+//             karena aksi ini tidak dapat dibatalkan.
+//           </AlertDialogDescription>
+//         </AlertDialogHeader>
+
+//         <AlertDialogFooter>
+//           <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
+
+//           <AlertDialogAction
+//             className={buttonVariants({ variant: "destructive" })}
+//             onClick={clickHandler}
+//           >
+//             {actions.confirm}
+//           </AlertDialogAction>
+//         </AlertDialogFooter>
+//       </AlertDialogContent>
+//     </AlertDialog>
+//   );
+// }
