@@ -99,9 +99,12 @@ export const getUserColumn = (currentUserId: string) => [
     id: userFields.email.label,
     header: ({ column }) => headerButton(column, userFields.email.label),
     cell: ({ row }) => {
-      const { id, email } = row.original;
-      if (id === currentUserId) return email;
-      return <UserDetailSheet data={row.original} />;
+      return (
+        <UserDetailSheet
+          data={row.original}
+          isCurrentUser={row.original.id === currentUserId}
+        />
+      );
     },
     filterFn: filterFn("text"),
     meta: { displayName: userFields.email.label, type: "text", icon: Mail },
