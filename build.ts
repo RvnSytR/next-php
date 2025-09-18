@@ -10,6 +10,7 @@ const buildDir = join(root, "build");
 
 const unnecessaryBuildFolders = [
   "bruno",
+  "schema.sql",
   // "upload"
 ];
 
@@ -41,12 +42,14 @@ if (!removed) console.log("📂  No unnecessary folders removed.");
 
 async function freshBuild() {
   try {
-    await $`cd next && bun run build`;
+    await $`bun run next:build`;
   } catch (err) {
     console.error("\n❌  Next.js build failed!");
     console.error("Try running next build manually with:");
     console.log("\ncd next && bun run build\n");
-    console.error("Re-run `bun run build` once the build succeeds.");
+    console.error(
+      "Then run the build script again after the Next.js build is successful.",
+    );
     process.exit(1);
   }
 }

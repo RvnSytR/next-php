@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "cd next && bun run dev",
+    "next:build": "cd next && bun run build",
     "build": "bun --bun run build.ts"
   },
   "devDependencies": {
