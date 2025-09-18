@@ -16,8 +16,8 @@ export function usePhpSWR<T>(
   schema: ZodType<T>,
   config?: usePhpSWRConfig,
 ): SWRResponse<T> {
-  const { origin, credentials } = appMeta.api;
-  const swrKey = `${origin}${key}`;
+  const { host, credentials } = appMeta.php;
+  const swrKey = `${host}${key}`;
   return useSWR(
     swrKey,
     async () =>
@@ -30,10 +30,10 @@ export async function phpAction(
   key: string,
   config?: Omit<RequestInit, "credentials">,
 ) {
-  const { origin, credentials } = appMeta.api;
-  return await fetcher(`${origin}${key}`, zodAPI, { credentials, ...config });
+  const { host, credentials } = appMeta.php;
+  return await fetcher(`${host}${key}`, zodAPI, { credentials, ...config });
 }
 
 export async function phpMutate(key: string) {
-  return await mutate(`${appMeta.api.origin}${key}`);
+  return await mutate(`${appMeta.php.host}${key}`);
 }

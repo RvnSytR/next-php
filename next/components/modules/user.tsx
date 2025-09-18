@@ -151,7 +151,7 @@ export function UserAvatar({
   return (
     <Avatar className={cn("rounded-xl", className)}>
       <AvatarImage
-        src={image ? `${appMeta.api.origin}${image}` : undefined}
+        src={image ? `${appMeta.php.host}${image}` : undefined}
         className={cn("rounded-xl", classNames?.image)}
       />
       <AvatarFallback className={cn("rounded-xl", classNames?.fallback)}>
@@ -220,7 +220,7 @@ export function UserDetailSheet({
   data,
   isCurrentUser,
 }: {
-  data: UserWithRole;
+  data: User;
   isCurrentUser: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);

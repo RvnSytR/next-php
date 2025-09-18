@@ -1,11 +1,11 @@
 meta {
-  name: /api/:json
+  name: /api/configs/:key
   type: http
-  seq: 12
+  seq: 3
 }
 
 get {
-  url: {{localhost}}/api/config.json
+  url: {{localhost}}/api/configs/config
   body: json
   auth: inherit
 }

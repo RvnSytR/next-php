@@ -102,7 +102,6 @@ function route(
     if ($requireAuth) {
         $checkIsAuthenticated();
     }
-
     $checkConfig();
     include_once $docRoot . $filePath;
     exit();
@@ -112,13 +111,4 @@ function pageRoute(string $route, string|array $roles = [])
 {
     $filePath = $route === "/" ? "/index" : $route;
     route("GET", $route, "$filePath.html", $roles);
-}
-
-function apiRoute(
-    string|array $methods,
-    string $route,
-    string $apiFilePath,
-    string|array $roles = [],
-) {
-    route($methods, $route, "/api$apiFilePath", $roles);
 }

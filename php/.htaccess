@@ -1,3 +1,11 @@
 RewriteEngine On
-RewriteCond %{REQUEST_URI} !\.(png|jpg|jpeg|webp|gif|svg|ico|css|js|pdf|zip|woff|woff2|ttf|eot|mp4|mp3|avi|mov|mkv)$ [NC]
+
+# Block (redirect to index.php) anything inside /src
+RewriteRule ^src/.*$ index.php [QSA,L]
+
+# Allow common static file types
+RewriteCond %{REQUEST_URI} \.(?:png|jpe?g|webp|gif|svg|ico|bmp|tiff|avif|css|js|map|woff2?|ttf|eot|otf|mp4|webm|ogv|mp3|wav|ogg|m4a|aac|flac|pdf|txt|xml|json|csv|zip|tar|gz|7z|rar)$ [NC]
+RewriteRule ^ - [L]
+
+# Everything else goes through router
 RewriteRule (.*) index.php [QSA,L]

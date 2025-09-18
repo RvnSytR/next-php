@@ -10,8 +10,8 @@ export const appMeta = {
   // logo: "/some-image.png"
   lang: "id" satisfies Language as Language,
 
-  api: {
-    origin: isProd ? "" : "http://localhost",
+  php: {
+    host: isProd ? "" : "http://localhost",
     credentials: (isProd ? "same-origin" : "include") as RequestCredentials,
   },
 };

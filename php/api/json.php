@@ -1,27 +1,31 @@
 <?php
 
 action("GET", function () use ($params) {
-    global $jsonDir;
+    global $configDir;
 
-    $jsonFile = "$jsonDir/{$params["json"]}";
+    $fileName = "{$params["key"]}.json";
+    $jsonFile = "$configDir/$fileName";
+
     if (!is_readable($jsonFile)) {
-        throw new Error($params["json"] . " tidak ditemukan.", 404);
+        throw new Error("$fileName tidak ditemukan.", 404);
     }
 
     $jsonData = json_decode(file_get_contents($jsonFile), true);
     if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new Error("Format " . $params["json"] . " invalid.", 400);
+        throw new Error("Format $fileName invalid.", 400);
     }
 
     responseSuccess(["data" => $jsonData]);
 });
 
 action("POST", function ($req) use ($params) {
-    global $jsonDir;
+    global $configDir;
 
-    $jsonFile = "$jsonDir/{$params["json"]}";
+    $fileName = "{$params["key"]}.json";
+    $jsonFile = "$configDir/$fileName";
+
     if (!is_readable($jsonFile)) {
-        throw new Error($params["json"] . " tidak ditemukan", 404);
+        throw new Error("$fileName tidak ditemukan", 404);
     }
 
     if (
@@ -30,10 +34,8 @@ action("POST", function ($req) use ($params) {
             json_encode($req, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
         )
     ) {
-        responseSuccess([
-            "message" => $params["json"] . " berhasil diperbarui.",
-        ]);
+        responseSuccess(["message" => "$fileName berhasil diperbarui."]);
     } else {
-        throw new Error("Gagal memperbarui " . $params["json"], 500);
+        throw new Error("Gagal memperbarui $fileName", 500);
     }
 });
