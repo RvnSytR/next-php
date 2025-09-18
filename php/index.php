@@ -45,27 +45,22 @@ if ($isAPI) {
     require_once $src . "/utils.php";
     require_once $src . "/db.php";
 
-    route(["GET", "POST"], "/api", "/api/example.php");
-    route(["GET", "POST"], "/api/configs/:key", "/api/json.php", ["admin"]);
+    apiRoute(["GET", "POST"], "/api", "/example.php");
+    apiRoute(["GET", "POST"], "/api/configs/:key", "/json.php", ["admin"]);
 
-    route("POST", "/api/auth/login", "/api/auth/basic.php");
-    route("DELETE", "/api/auth/logout", "/api/auth/basic.php");
-    route("POST", "/api/auth/register", "/api/auth/register.php");
+    apiRoute("POST", "/api/auth/login", "/auth/basic.php");
+    apiRoute("DELETE", "/api/auth/logout", "/auth/basic.php");
+    apiRoute("POST", "/api/auth/register", "/auth/register.php");
 
-    route(["GET", "POST"], "/api/me", "/api/auth/me.php", "all");
-    route("DELETE", "/api/me/avatar", "/api/auth/me-action.php", "all");
-    route("POST", "/api/me/password", "/api/auth/me-action.php", "all");
+    apiRoute(["GET", "POST"], "/api/me", "/auth/me.php", "all");
+    apiRoute("DELETE", "/api/me/avatar", "/auth/me-action.php", "all");
+    apiRoute("POST", "/api/me/password", "/auth/me-action.php", "all");
 
-    route(
-        ["GET", "POST", "DELETE"],
-        "/api/users",
-        "/api/auth/users.php",
-        "all",
-    );
-    route(
+    apiRoute(["GET", "POST", "DELETE"], "/api/users", "/auth/users.php", "all");
+    apiRoute(
         ["GET", "POST", "DELETE"],
         "/api/users/:id",
-        "/api/auth/users-id.php",
+        "/auth/users-id.php",
         "all",
     );
 }

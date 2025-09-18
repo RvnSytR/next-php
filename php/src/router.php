@@ -112,3 +112,12 @@ function pageRoute(string $route, string|array $roles = [])
     $filePath = $route === "/" ? "/index" : $route;
     route("GET", $route, "$filePath.html", $roles);
 }
+
+function apiRoute(
+    string|array $methods,
+    string $route,
+    string $apiFilePath,
+    string|array $roles = [],
+) {
+    route($methods, $route, "/src/api$apiFilePath", $roles);
+}
