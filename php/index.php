@@ -48,8 +48,8 @@ if ($isAPI) {
     apiRoute(["GET", "POST"], "/api", "/example.php");
     apiRoute(["GET", "POST"], "/api/configs/:key", "/json.php", ["admin"]);
 
-    apiRoute("POST", "/api/auth/login", "/auth/basic.php");
-    apiRoute("DELETE", "/api/auth/logout", "/auth/basic.php");
+    apiRoute("POST", "/api/auth/login", "/auth/index.php");
+    apiRoute("DELETE", "/api/auth/logout", "/auth/index.php");
     apiRoute("POST", "/api/auth/register", "/auth/register.php");
 
     apiRoute(["GET", "POST"], "/api/me", "/auth/me.php", "all");
