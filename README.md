@@ -2,7 +2,7 @@
 
 Starter template based on [`next-starter`](https://github.com/RvnSytR/next-starter). This template is designed to speed up the process of setting up a **Next.js frontend with a PHP backend**.
 
-The main goal of this template is to let me build projects using Next.js as the frontend stack, while still being able to host the final app on affordable and widely available hosting services (e.g. cPanel, hPanel, DirectAdmin, etc.).
+The main goal of this template is to build projects with Next.js as the frontend stack, while still allowing the final app to be hosted on affordable and widely available hosting platforms (e.g cPanel, hPanel, DirectAdmin, etc.).
 
 Since this project is **upstreamed** from `next-starter`, most of the features remain the same. The key difference is that instead of using Next.js’ built-in server and API routes, this setup relies on **PHP as the backend**.
 
