@@ -23,7 +23,7 @@ export default function Page() {
     >
       <PersonalInformationCard className="w-full scroll-m-20 lg:max-w-xl" />
 
-      <Card id="change-password" className="w-full scroll-m-20 lg:max-w-xl">
+      <Card id="ubah-kata-sandi" className="w-full scroll-m-20 lg:max-w-xl">
         <CardHeader className="border-b">
           <CardTitle>Ubah Kata Sandi</CardTitle>
           <CardDescription>

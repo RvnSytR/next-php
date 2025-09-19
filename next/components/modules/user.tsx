@@ -466,7 +466,7 @@ export function SignUpForm() {
 export function PersonalInformationCard({ className }: { className?: string }) {
   const { data, error, isLoading } = useSession();
   return (
-    <Card id="personal-information" className={className}>
+    <Card id="informasi-pribadi" className={className}>
       <CardHeader className="border-b">
         <CardTitle>Informasi Pribadi</CardTitle>
         <CardDescription>

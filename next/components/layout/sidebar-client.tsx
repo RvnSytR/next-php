@@ -4,7 +4,6 @@ import { useSession } from "@/lib/hooks";
 import { routesMeta } from "@/lib/routes";
 import { getActiveRoute, getMenuByRole, toKebabCase } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
-import { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Collapsible as CollapsiblePrimitive } from "radix-ui";
@@ -120,13 +119,11 @@ export function SCSidebarContent() {
 
                     <CollapsibleContent>
                       <SidebarMenuSub>
-                        {subMenu.map(({ label, className }, idx) => (
+                        {subMenu.map(({ label, href, className }, idx) => (
                           <SidebarMenuSubItem key={idx}>
                             <SidebarMenuSubButton className={className} asChild>
                               <Link
-                                href={
-                                  `${route}/#${toKebabCase(label)}` as Route
-                                }
+                                href={href ?? `${route}/#${toKebabCase(label)}`}
                                 className="flex justify-between"
                               >
                                 <span className="line-clamp-1">{label}</span>
