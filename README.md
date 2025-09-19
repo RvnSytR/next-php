@@ -25,6 +25,12 @@ git clone https://github.com/RvnSytR/next-php
 cd next-php
 ```
 
+Install the dependencies:
+
+```sh
+bun install
+```
+
 Install the frontend dependencies:
 
 ```sh

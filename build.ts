@@ -45,7 +45,7 @@ async function freshBuild() {
     await $`bun run next:build`;
   } catch (err) {
     console.error("\n❌  Next.js build failed!");
-    console.error("Try running next build manually with:");
+    console.error("Try running next build explicitly with:");
     console.log("\ncd next && bun run build\n");
     console.error(
       "Then run the build script again after the Next.js build is successful.",
