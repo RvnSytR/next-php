@@ -28,14 +28,14 @@ import {
   useSidebar,
 } from "../ui/sidebar";
 import { Skeleton } from "../ui/skeleton";
-import { ErrorFallback, LoadingFallback } from "./section";
+import { SWRErrorFallback, SWRLoadingFallback } from "./section";
 
 export function SCHeaderMenuButton() {
   const { data, error, isLoading } = useSession();
 
   if (isLoading) return <Skeleton className="h-12" />;
   if (error || !data?.data)
-    return <ErrorFallback error={error} className="h-12" hideText />;
+    return <SWRErrorFallback error={error} className="h-12" hideText />;
 
   const { email, name, image } = data.data;
 
@@ -66,13 +66,13 @@ export function SCHeaderMenuButton() {
 }
 
 export function SCSidebarContent() {
-  const { data, error, isLoading } = useSession();
   const pathname = usePathname();
+  const { data, error, isLoading } = useSession();
   const { isMobile, toggleSidebar } = useSidebar();
 
-  if (isLoading) return <LoadingFallback className="h-full" />;
+  if (isLoading) return <SWRLoadingFallback className="h-full" />;
   if (error || !data?.data)
-    return <ErrorFallback error={error} className="m-2 h-full" />;
+    return <SWRErrorFallback error={error} className="m-2 h-full" />;
 
   return getMenuByRole(data.data.role).map(({ section, content }, i) => (
     <SidebarGroup key={i}>

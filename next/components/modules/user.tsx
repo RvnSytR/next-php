@@ -26,9 +26,9 @@ import { z } from "zod";
 import { getUserColumn } from "../data-table/column";
 import { DataTable } from "../data-table/data-table";
 import {
-  ErrorFallback,
-  LoadingFallback,
   SheetDetails,
+  SWRErrorFallback,
+  SWRLoadingFallback,
 } from "../layout/section";
 import {
   AlertDialog,
@@ -176,9 +176,9 @@ export function UserDataTable() {
   const isLoading = usersLoading || sessionLoading;
   const error = usersError ?? sessionError;
 
-  if (isLoading) return <LoadingFallback />;
+  if (isLoading) return <SWRLoadingFallback />;
   if (error || !users?.data || !session?.data?.id)
-    return <ErrorFallback error={error} />;
+    return <SWRErrorFallback error={error} />;
 
   const id = session?.data?.id;
 
@@ -485,9 +485,8 @@ export function PersonalInformationCard({ className }: { className?: string }) {
         </CardAction>
       </CardHeader>
 
-      {isLoading && <LoadingFallback />}
-      {error && <ErrorFallback error={error} className="mx-6" hideText />}
-
+      {isLoading && <SWRLoadingFallback />}
+      {error && <SWRErrorFallback error={error} className="mx-6" hideText />}
       {data?.data && <PersonalInformation {...data.data} />}
     </Card>
   );
