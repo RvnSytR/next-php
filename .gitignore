@@ -1,14 +1,14 @@
 # dependencies
-/node_modules
-/vendor
+node_modules
+vendor
 
 # php
 /php/upload
+/php/config.json
 
 # production
 /build
 
 # local
-test/
-test-2/
-.vscode/
+.vscode
+test

@@ -10,7 +10,7 @@ export function useSession(config?: usePhpSWRConfig) {
   );
 }
 
-export function useUser(config?: usePhpSWRConfig) {
+export function useUsers(config?: usePhpSWRConfig) {
   const data = z.array(zodUserData);
   return usePhpSWR("/api/users", zodAPI.extend({ data }), config);
 }

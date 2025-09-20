@@ -1,10 +1,16 @@
 <?php
 
-// * Directories Checker
+// * Required Directories
 $directories = [
     "avatar" => $uploadDir . "/avatar",
 ];
 
+// * Default Config on config.json
+$defaultConfig = [
+    "disabledRoutes" => [],
+];
+
+// ? Directories Checker
 if (!file_exists($uploadDir)) {
     mkdir($uploadDir);
 }
@@ -15,16 +21,8 @@ foreach ($directories as $key => $folder) {
     }
 }
 
-// * Configuration Loader
-$defaultConfig = [
-    "disabledRoutes" => [],
-];
-
-if (!file_exists($configDir)) {
-    mkdir($configDir);
-}
-
-$configFile = $configDir . "/config.json";
+// ? Configuration Loader
+$configFile = "$docRoot/config.json";
 if (!file_exists($configFile)) {
     file_put_contents(
         $configFile,

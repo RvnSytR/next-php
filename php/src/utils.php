@@ -105,7 +105,7 @@ function action(string|array $methods, callable $callback, array $response = [])
     global $db;
 
     try {
-        $req = (array) json_decode(file_get_contents("php://input"));
+        $req = json_decode(file_get_contents("php://input"), true);
         call_user_func_array($callback, [$req, $db]);
     } catch (Throwable $th) {
         $onError = $response["onError"] ?? null;

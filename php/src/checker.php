@@ -41,8 +41,11 @@ function checkType($value, string $type): bool
         case "array":
             return is_array($value);
         case "json":
-            json_decode($value);
-            return json_last_error() === JSON_ERROR_NONE;
+            if (is_string($value)) {
+                json_decode($value);
+                return json_last_error() === JSON_ERROR_NONE;
+            }
+            return is_object($value);
         case "email":
             return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
         default:
@@ -113,6 +116,7 @@ function checkFields(array $fields, array $rules): array
         $value = $hasFile ? $normalizedFiles[$key] : $fields[$key];
 
         if ($hasFile) {
+            // File Validation
             $meta = $fileMeta[$type];
             $minFile = $rule["min"] ?? null;
             $maxFile = $rule["max"] ?? null;
@@ -149,6 +153,7 @@ function checkFields(array $fields, array $rules): array
                 }
             }
         } else {
+            // Fields Validation
             if (!checkType($value, $type)) {
                 throw new Error("Field '$key' harus berupa $type yang valid.");
             }

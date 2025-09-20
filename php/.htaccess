@@ -1,11 +1,11 @@
 RewriteEngine On
 
 # Block (redirect to index.php) anything inside /src
-RewriteRule ^src/.*$ index.php [QSA,L]
+RewriteRule ^(src/.*|config\.json)$ index.php [QSA,L]
 
-# Allow common static file types
-RewriteCond %{REQUEST_URI} \.(?:png|jpe?g|webp|gif|svg|ico|bmp|tiff|avif|css|js|map|woff2?|ttf|eot|otf|mp4|webm|ogv|mp3|wav|ogg|m4a|aac|flac|pdf|txt|xml|json|csv|zip|tar|gz|7z|rar|md)$ [NC]
-RewriteRule ^ - [L]
+# Allow common static file types IF the file actually exists
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule \.(?:png|jpe?g|webp|gif|svg|ico|bmp|tiff|avif|css|js|map|woff2?|ttf|eot|otf|mp4|webm|ogv|mp3|wav|ogg|m4a|aac|flac|pdf|txt|xml|json|csv|zip|tar|gz|7z|rar|md)$ - [L,NC]
 
-# Everything else goes through router
-RewriteRule (.*) index.php [QSA,L]
+# Otherwise, send everything (including non-existent static files) to index.php
+RewriteRule ^ index.php [QSA,L]

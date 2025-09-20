@@ -3,22 +3,21 @@
 session_start();
 
 $docRoot = $_SERVER["DOCUMENT_ROOT"];
-$src = $docRoot . "/src";
-$uploadDir = $docRoot . "/upload";
-$configDir = $src . "/configs";
+$src = "$docRoot/src";
+$uploadDir = "$docRoot/upload";
 
 $requestURL = filter_var($_SERVER["REQUEST_URI"], FILTER_SANITIZE_URL);
 $requestURL = rtrim($requestURL, "/");
 $requestURL = strtok($requestURL, "?");
 $isAPI = str_starts_with($requestURL, "/api");
 
-require_once $src . "/meta.php";
-require_once $src . "/response.php";
+require_once "$src/meta.php";
+require_once "$src/response.php";
 
-require_once $src . "/checker.php";
-require_once $src . "/router.php";
+require_once "$src/checker.php";
+require_once "$src/router.php";
 
-require_once $src . "/init.php";
+require_once "$src/init.php";
 
 // * PAGE ROUTES
 if (!$isAPI) {
@@ -42,11 +41,11 @@ if ($isAPI) {
         exit();
     }
 
-    require_once $src . "/utils.php";
-    require_once $src . "/db.php";
+    require_once "$src/utils.php";
+    require_once "$src/db.php";
 
     apiRoute(["GET", "POST"], "/api", "/example.php");
-    apiRoute(["GET", "POST"], "/api/configs/:key", "/json.php", ["admin"]);
+    apiRoute(["GET", "POST"], "/api/config", "/config.php", ["admin"]);
 
     apiRoute("POST", "/api/auth/login", "/auth/index.php");
     apiRoute("DELETE", "/api/auth/logout", "/auth/index.php");

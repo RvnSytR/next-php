@@ -1,7 +1,7 @@
 "use client";
 
 import { actions, messages } from "@/lib/content";
-import { useIsMobile, useSession, useUser } from "@/lib/hooks";
+import { useIsMobile, useSession, useUsers } from "@/lib/hooks";
 import { appMeta, fieldsMeta, fileMeta } from "@/lib/meta";
 import { allRoles, Role, rolesMeta, User } from "@/lib/permission";
 import { phpAction, phpMutate } from "@/lib/php";
@@ -162,7 +162,11 @@ export function UserAvatar({
 }
 
 export function UserDataTable() {
-  const { data: users, error: usersError, isLoading: usersLoading } = useUser();
+  const {
+    data: users,
+    error: usersError,
+    isLoading: usersLoading,
+  } = useUsers();
   const {
     data: session,
     error: sessionError,

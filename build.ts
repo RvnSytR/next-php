@@ -12,6 +12,7 @@ const unnecessaryBuildFolders = [
   "bruno",
   "schema.sql",
   // "upload"
+  // "config.json"
 ];
 
 console.log("🚀  Starting next-php build...");

@@ -1,11 +1,11 @@
 meta {
-  name: /api/configs/:key
+  name: /api/config
   type: http
   seq: 3
 }
 
-get {
-  url: {{localhost}}/api/configs/config
+post {
+  url: {{localhost}}/api/config
   body: json
   auth: inherit
 }
@@ -15,6 +15,7 @@ body:json {
     "content": "Hello World",
     "disabledRoutes": []
   }
+  
 }
 
 settings {

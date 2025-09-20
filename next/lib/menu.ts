@@ -32,14 +32,7 @@ export const dashboardMenu: Menu[] = [
       {
         route: "/dashboard/profile",
         icon: UserRound,
-        subMenu: [
-          { label: "Informasi Pribadi" },
-          { label: "Ubah Kata Sandi" },
-          {
-            label: "Hapus Akun",
-            className: "text-destructive hover:text-destructive",
-          },
-        ],
+        subMenu: [{ label: "Informasi Pribadi" }, { label: "Ubah Kata Sandi" }],
       },
     ],
   },

@@ -1,4 +1,8 @@
-import { ExampleForm, ExampleTypography } from "@/components/modules/example";
+import {
+  ExampleFetch,
+  ExampleForm,
+  ExampleTypography,
+} from "@/components/modules/example";
 import { Button } from "@/components/ui/button";
 import { LinkLoader, ThemeToggle } from "@/components/ui/buttons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,9 +84,11 @@ const comp = {
 
   typography: <ExampleTypography />,
   formBuilder: <FormBuilder />,
+  fetch: <ExampleFetch />,
 };
 
 const tabs: { section: string; content: (keyof typeof comp)[] }[] = [
+  { section: "Fetch", content: ["fetch"] },
   { section: "Typography", content: ["typography"] },
   { section: "Chart", content: ["pieChart", "timelineChart"] },
   { section: "Form", content: ["form"] },
