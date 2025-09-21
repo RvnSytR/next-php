@@ -31,7 +31,7 @@ action("POST", function ($req, $db) {
     }
 
     $user = $db["user"]["select-by-email"]($data["email"])->fetch_assoc();
-    if (!empty($user)) {
+    if (!$user) {
         throw new Error("Email ini sudah terdaftar.", 409);
     }
 
@@ -48,10 +48,6 @@ action("DELETE", function ($req, $db) {
     $data = checkFields($req, ["ids" => ["type" => "array"]]);
     $dataLength = count($data["ids"]);
 
-    if ($_SESSION["role"] !== "admin") {
-        throw new Error("Akses ditolak - Anda bukan admin.", 403);
-    }
-
     $i = 1;
     foreach ($data["ids"] as $item) {
         if ($_SESSION["id"] === $item) {
@@ -66,7 +62,7 @@ action("DELETE", function ($req, $db) {
     $successLength = 0;
     foreach ($data["ids"] as $item) {
         $user = $db["user"]["select-name&image-by-id"]($item)->fetch_assoc();
-        if (empty($user)) {
+        if (!$user) {
             continue;
         }
 

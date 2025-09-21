@@ -16,7 +16,7 @@ action("POST", function ($req, $db) use ($params) {
 
     if ($_SESSION["id"] === $id) {
         throw new Error(
-            "Akses ditolak - Anda tidak dapat memperbaui akun yang sedang digunakan.",
+            "Akses ditolak - Anda tidak dapat memperbarui akun yang sedang digunakan.",
             400,
         );
     }
@@ -50,10 +50,6 @@ action("DELETE", function ($req, $db) use ($params) {
             "Anda tidak dapat menghapus akun yang sedang digunakan.",
             400,
         );
-    }
-
-    if ($_SESSION["role"] !== "admin") {
-        throw new Error("Akses ditolak - Anda bukan admin.", 403);
     }
 
     $res = $db["user"]["select-name&image-by-id"]($data["id"])->fetch_assoc();

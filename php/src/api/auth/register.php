@@ -17,7 +17,7 @@ action("POST", function ($req, $db) {
     }
 
     $user = $db["user"]["select-by-email"]($data["email"])->fetch_assoc();
-    if (!empty($user)) {
+    if (!$user) {
         throw new Error("Email ini sudah terdaftar.", 409);
     }
 

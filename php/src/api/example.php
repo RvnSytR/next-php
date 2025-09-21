@@ -49,9 +49,9 @@ action(
         ]);
 
         // $uploadCtx = uploadFiles($data["file"] ?? [], "avatar", [
-        //     "date" => true,
         //     "prefix" => "prefix",
         //     "suffix" => "suffix"
+        //     "withDate" => true,
         // ]);
 
         responseSuccess(["data" => $data]);

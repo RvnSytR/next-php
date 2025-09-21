@@ -55,12 +55,14 @@ if ($isAPI) {
     apiRoute("DELETE", "/api/me/avatar", "/auth/me-action.php", "all");
     apiRoute("POST", "/api/me/password", "/auth/me-action.php", "all");
 
-    apiRoute(["GET", "POST", "DELETE"], "/api/users", "/auth/users.php", "all");
+    apiRoute(["GET", "POST", "DELETE"], "/api/users", "/auth/users.php", [
+        "admin",
+    ]);
     apiRoute(
         ["GET", "POST", "DELETE"],
         "/api/users/:id",
         "/auth/users-id.php",
-        "all",
+        ["admin"],
     );
 }
 
