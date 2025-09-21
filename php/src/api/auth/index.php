@@ -3,7 +3,7 @@
 // Sign In
 action("POST", function ($req, $db) {
     $data = checkFields($req, [
-        "email" => ["type" => "email"],
+        "email" => ["type" => "email", "max" => 255],
         "password" => ["type" => "string"],
     ]);
 

@@ -1,14 +1,6 @@
 <?php
 
-action("GET", function () {
-    global $configFile;
-    $configData = json_decode(file_get_contents($configFile), true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new Error("Format konfigurasi (config.json) tidak valid.", 400);
-    }
-
-    responseSuccess(["data" => $configData]);
-});
+action("GET", fn() => responseSuccess(["data" => $config]));
 
 action("POST", function ($req) {
     global $configFile;

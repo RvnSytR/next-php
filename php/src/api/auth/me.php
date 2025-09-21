@@ -13,8 +13,8 @@ action(
     "POST",
     function ($req, $db) use (&$uploadCtx) {
         $data = checkFields($_POST, [
-            "name" => ["type" => "string", "optional" => true],
-            "image" => ["type" => "file", "optional" => true, "max" => 1],
+            "name" => ["type" => "string", "max" => 100, "optional" => true],
+            "image" => ["type" => "file", "max" => 1, "optional" => true],
         ]);
 
         if (empty($data)) {

@@ -11,14 +11,27 @@ action("GET", function ($req, $db) use ($params) {
 
 // Update User by Id
 action("POST", function ($req, $db) use ($params) {
-    $data = checkFields($req, ["role" => ["type" => "string"]]);
+    $id = $params["id"];
+    $data = checkFields($req, ["role" => ["type" => "string", "max" => 20]]);
 
-    $res = $db["user"]["select-name&role-by-id"]($params["id"])->fetch_assoc();
+    if ($_SESSION["id"] === $id) {
+        throw new Error(
+            "Akses ditolak - Anda tidak dapat memperbaui akun yang sedang digunakan.",
+            400,
+        );
+    }
+
+    global $config;
+    if (!in_array($data["role"], $config["roles"])) {
+        throw new Error("Role tidak valid.", 400);
+    }
+
+    $res = $db["user"]["select-name&role-by-id"]($id)->fetch_assoc();
     if (!$res) {
         throw new Error("Akun tidak ditemukan.", 404);
     }
 
-    $data["id"] = $params["id"];
+    $data["id"] = $id;
     $data["role"] = strtolower($data["role"]);
     $db["user"]["update-role-by-id"]($data);
 
@@ -44,7 +57,6 @@ action("DELETE", function ($req, $db) use ($params) {
     }
 
     $res = $db["user"]["select-name&image-by-id"]($data["id"])->fetch_assoc();
-
     if (!$res) {
         throw new Error("Akun tidak ditemukan.", 404);
     }

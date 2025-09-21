@@ -11,11 +11,11 @@ action(
 // Create new User
 action("POST", function ($req, $db) {
     $data = checkFields($req, [
-        "name" => ["type" => "string"],
-        "email" => ["type" => "email"],
+        "name" => ["type" => "string", "max" => 100],
+        "email" => ["type" => "email", "max" => 255],
         "password" => ["type" => "password"],
         "confirmPassword" => ["type" => "string"],
-        "role" => ["type" => "string"],
+        "role" => ["type" => "string", "max" => 20],
     ]);
 
     if ($data["password"] !== $data["confirmPassword"]) {
@@ -23,6 +23,11 @@ action("POST", function ($req, $db) {
             "Kata sandi tidak cocok - silakan periksa kembali.",
             400,
         );
+    }
+
+    global $config;
+    if (!in_array($data["role"], $config["roles"])) {
+        throw new Error("Role tidak valid.", 400);
     }
 
     $user = $db["user"]["select-by-email"]($data["email"])->fetch_assoc();

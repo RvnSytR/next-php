@@ -7,6 +7,7 @@ $directories = [
 
 // * Default Config on config.json
 $defaultConfig = [
+    "roles" => ["user", "admin"],
     "disabledRoutes" => [],
 ];
 

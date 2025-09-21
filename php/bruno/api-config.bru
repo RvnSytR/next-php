@@ -4,7 +4,7 @@ meta {
   seq: 3
 }
 
-post {
+get {
   url: {{localhost}}/api/config
   body: json
   auth: inherit
@@ -12,8 +12,7 @@ post {
 
 body:json {
   {
-    "content": "Hello World",
-    "disabledRoutes": []
+    "content": "Hello World"
   }
   
 }

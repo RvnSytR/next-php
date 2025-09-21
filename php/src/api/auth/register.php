@@ -3,8 +3,8 @@
 // Sign Up
 action("POST", function ($req, $db) {
     $data = checkFields($req, [
-        "name" => ["type" => "string"],
-        "email" => ["type" => "email"],
+        "name" => ["type" => "string", "max" => 100],
+        "email" => ["type" => "email", "max" => 255],
         "password" => ["type" => "password"],
         "confirmPassword" => ["type" => "string"],
     ]);
