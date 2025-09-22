@@ -89,8 +89,7 @@ function Footer() {
         <SidebarMenuItem key={url}>
           {disabled ? (
             <SidebarMenuButton size="sm" disabled>
-              {Icon && <Icon />}
-              {displayName}
+              {Icon && <Icon />} {displayName}
             </SidebarMenuButton>
           ) : (
             <SidebarMenuButton size="sm" tooltip={displayName} asChild>
@@ -106,9 +105,7 @@ function Footer() {
       <SidebarSeparator />
 
       <SidebarMenuItem>
-        <SidebarMenuButton tooltip="Keluar" asChild>
-          <SignOutButton />
-        </SidebarMenuButton>
+        <SignOutButton />
       </SidebarMenuItem>
     </SidebarMenu>
   );

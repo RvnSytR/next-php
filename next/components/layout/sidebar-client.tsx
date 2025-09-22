@@ -2,7 +2,7 @@
 
 import { useSession } from "@/lib/hooks";
 import { routesMeta } from "@/lib/routes";
-import { getActiveRoute, getMenuByRole, toKebabCase } from "@/lib/utils";
+import { cn, getActiveRoute, getMenuByRole, toKebabCase } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -56,13 +56,26 @@ export function SCHeaderMenuButton() {
           }}
         />
 
-        <div className="grid break-all [&_span]:line-clamp-1">
+        <div className="grid break-all [&>span]:line-clamp-1">
           <span className="text-sm font-semibold">{name}</span>
           <span className="text-xs">{email}</span>
         </div>
       </Link>
     </SidebarMenuButton>
   );
+}
+
+function SCCollapsible({
+  isActive,
+  ...props
+}: ComponentProps<typeof CollapsiblePrimitive.Root> & {
+  isActive: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(isActive);
+  useEffect(() => {
+    if (isActive) setIsOpen(true);
+  }, [isActive]);
+  return <Collapsible open={isOpen} onOpenChange={setIsOpen} {...props} />;
 }
 
 export function SCSidebarContent() {
@@ -87,8 +100,7 @@ export function SCSidebarContent() {
             return (
               <SidebarMenuItem key={route}>
                 <SidebarMenuButton disabled>
-                  {Icon && <Icon />}
-                  <span className="line-clamp-1">{displayName}</span>
+                  {Icon && <Icon />} {displayName}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );
@@ -98,14 +110,14 @@ export function SCSidebarContent() {
             <SCCollapsible key={route} isActive={isActive} asChild>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => isMobile && toggleSidebar()}
                   tooltip={displayName}
+                  onClick={() => isMobile && toggleSidebar()}
                   isActive={isActive}
                   asChild
                 >
                   <Link href={route}>
                     <LinkLoader icon={{ base: Icon && <Icon /> }} />
-                    <span className="line-clamp-1">{displayName}</span>
+                    {displayName}
                   </Link>
                 </SidebarMenuButton>
 
@@ -121,13 +133,15 @@ export function SCSidebarContent() {
                       <SidebarMenuSub>
                         {subMenu.map(({ label, href, className }, idx) => (
                           <SidebarMenuSubItem key={idx}>
-                            <SidebarMenuSubButton className={className} asChild>
+                            <SidebarMenuSubButton asChild>
                               <Link
                                 href={href ?? `${route}/#${toKebabCase(label)}`}
-                                className="flex justify-between"
+                                className={cn(
+                                  "flex justify-between",
+                                  className,
+                                )}
                               >
-                                <span className="line-clamp-1">{label}</span>
-                                <LinkLoader />
+                                {label} <LinkLoader />
                               </Link>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
@@ -143,17 +157,4 @@ export function SCSidebarContent() {
       </SidebarMenu>
     </SidebarGroup>
   ));
-}
-
-function SCCollapsible({
-  isActive,
-  ...props
-}: ComponentProps<typeof CollapsiblePrimitive.Root> & {
-  isActive: boolean;
-}) {
-  const [isOpen, setIsOpen] = useState(isActive);
-  useEffect(() => {
-    if (isActive) setIsOpen(true);
-  }, [isActive]);
-  return <Collapsible open={isOpen} onOpenChange={setIsOpen} {...props} />;
 }

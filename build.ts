@@ -58,13 +58,13 @@ async function freshBuild() {
 if (existsSync(outDir)) {
   const answer = prompt("❔  Do you want to fresh build Next.js? (y/N): ");
   if (answer?.toLowerCase() === "y") {
-    console.log("🚀  Running fresh Next.js build...\n");
+    console.log("🚀  Running fresh Next.js build...");
     await freshBuild();
   } else {
     console.log("⏩  Skipping fresh build, using existing /next/out...");
   }
 } else {
-  console.log("🚀  /next/out not found. Building Next.js App...\n");
+  console.log("🚀  /next/out not found. Building Next.js App...");
   await freshBuild();
 }
 
