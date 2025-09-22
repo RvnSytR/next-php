@@ -1,6 +1,3 @@
-// * This file contains PHP-related utilities, functions and helpers.
-
-import { mutate } from "swr";
 import z, { ZodType } from "zod";
 import { appMeta } from "./meta";
 import { fetcher } from "./utils";
@@ -21,8 +18,4 @@ export function phpFetcher<T>(
 
 export function phpAction(key: string, config?: PHPFetcherConfig) {
   return phpFetcher(key, z.null(), config);
-}
-
-export function phpMutate(key: string) {
-  return mutate(`${appMeta.php.host}${key}`);
 }

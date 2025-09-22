@@ -1,6 +1,6 @@
 import z from "zod";
+import { usePhpSWR, usePhpSWRConfig } from "../php-swr";
 import { zodUserData } from "../zod";
-import { usePhpSWR, usePhpSWRConfig } from "./swr";
 
 export function useSession(config?: usePhpSWRConfig) {
   return usePhpSWR("/api/me", zodUserData.nullable(), config);
