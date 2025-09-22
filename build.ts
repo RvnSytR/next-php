@@ -34,7 +34,7 @@ let removed = false;
 unnecessaryBuildFolders.forEach((folder) => {
   const path = join(buildDir, folder);
   if (existsSync(path)) {
-    console.log(`📂  Removing /${folder}...`);
+    console.log(`🟥  Removing /${folder}...`);
     rmSync(path, { recursive: true, force: true });
     removed = true;
   }

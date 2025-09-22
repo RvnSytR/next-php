@@ -9,7 +9,7 @@ z.config(id());
 
 const { user: userFields } = fieldsMeta;
 
-export const zodAPI = z.object({
+export const zodPHPResponse = z.object({
   code: z.number(),
   success: z.boolean(),
   message: z.string(),

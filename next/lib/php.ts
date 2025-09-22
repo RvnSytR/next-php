@@ -1,39 +1,28 @@
 // * This file contains PHP-related utilities, functions and helpers.
 
-import useSWR, { mutate, SWRConfiguration, SWRResponse } from "swr";
-import { ZodType } from "zod";
+import { mutate } from "swr";
+import z, { ZodType } from "zod";
 import { appMeta } from "./meta";
 import { fetcher } from "./utils";
-import { zodAPI } from "./zod";
+import { zodPHPResponse } from "./zod";
 
-export type usePhpSWRConfig = {
-  fetcher?: Omit<RequestInit, "credentials">;
-  swr?: SWRConfiguration;
-};
+export type PHPResponse = z.infer<typeof zodPHPResponse>;
+type PHPFetcherConfig = Omit<RequestInit, "credentials">;
 
-export function usePhpSWR<T>(
+export function phpFetcher<T>(
   key: string,
   schema: ZodType<T>,
-  config?: usePhpSWRConfig,
-): SWRResponse<T> {
+  config?: PHPFetcherConfig,
+): Promise<PHPResponse & { data: T }> {
   const { host, credentials } = appMeta.php;
-  const swrKey = `${host}${key}`;
-  return useSWR(
-    swrKey,
-    async () =>
-      await fetcher(swrKey, schema, { credentials, ...config?.fetcher }),
-    config?.swr,
-  );
+  const sc = zodPHPResponse.extend({ data: schema });
+  return fetcher(`${host}${key}`, sc, { credentials, ...config });
 }
 
-export async function phpAction(
-  key: string,
-  config?: Omit<RequestInit, "credentials">,
-) {
-  const { host, credentials } = appMeta.php;
-  return await fetcher(`${host}${key}`, zodAPI, { credentials, ...config });
+export function phpAction(key: string, config?: PHPFetcherConfig) {
+  return phpFetcher(key, z.null(), config);
 }
 
-export async function phpMutate(key: string) {
-  return await mutate(`${appMeta.php.host}${key}`);
+export function phpMutate(key: string) {
+  return mutate(`${appMeta.php.host}${key}`);
 }
