@@ -11,6 +11,7 @@ import { capitalize, cn } from "@/lib/utils";
 import { zodSchemas, zodUser } from "@/lib/zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  ArrowUpRight,
   LogIn,
   LogOut,
   Save,
@@ -93,7 +94,7 @@ import { SidebarMenuButton } from "../ui/sidebar";
 import { Skeleton } from "../ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
-const userFields = fieldsMeta.user;
+const { user: userFields } = fieldsMeta;
 
 const sharedText = {
   signIn: "Berhasil masuk - Selamat datang!",
@@ -238,7 +239,12 @@ export function UserDetailSheet({
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger className="link">{data.email}</SheetTrigger>
+      <SheetTrigger className="group hover:cursor-pointer" asChild>
+        <div className="flex w-fit gap-x-1">
+          <span className="link-group">{data.name}</span>
+          <ArrowUpRight className="group-hover:text-primary size-3.5 transition-colors" />
+        </div>
+      </SheetTrigger>
 
       <SheetContent>
         <SheetHeader className="flex-row items-center">
@@ -258,10 +264,11 @@ export function UserDetailSheet({
 
           <SheetDetails data={details} />
 
-          <Separator />
-
           {!isCurrentUser && (
-            <AdminChangeUserRoleForm data={data} setIsOpen={setIsOpen} />
+            <>
+              <Separator />
+              <AdminChangeUserRoleForm data={data} setIsOpen={setIsOpen} />
+            </>
           )}
         </div>
 

@@ -1,6 +1,6 @@
 import { dashboardfooterMenu } from "@/lib/menu";
 import { cn } from "@/lib/utils";
-import { cva } from "class-variance-authority";
+import { cva, VariantProps } from "class-variance-authority";
 import Link from "next/link";
 import { SignOutButton } from "../modules/user";
 import { LinkLoader, RefreshButton } from "../ui/buttons";
@@ -17,6 +17,7 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "../ui/sidebar";
+import { TooltipContent } from "../ui/tooltip";
 import { SCHeaderMenuButton, SCSidebarContent } from "./sidebar-client";
 
 export const sidebarMenuButtonVariants = cva(
@@ -40,7 +41,21 @@ export const sidebarMenuButtonVariants = cva(
   },
 );
 
-export async function SidebarApp({ children }: { children: React.ReactNode }) {
+export type SidebarMenuButtonProps = React.ComponentProps<"button"> &
+  VariantProps<typeof sidebarMenuButtonVariants> & {
+    asChild?: boolean;
+    isActive?: boolean;
+    tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+  };
+
+export type SidebarMenuSubButtonProps = React.ComponentProps<"a"> & {
+  asChild?: boolean;
+  variant?: "default" | "destructive";
+  size?: "sm" | "md";
+  isActive?: boolean;
+};
+
+export function SidebarApp({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">

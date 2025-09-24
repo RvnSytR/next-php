@@ -87,7 +87,8 @@ export function SCSidebarContent() {
   if (error || !data?.data)
     return <SWRErrorFallback error={error} className="m-2 h-full" />;
 
-  return getMenuByRole(data.data.role).map(({ section, content }, i) => (
+  const menu = getMenuByRole(data.data.role);
+  return menu.map(({ section, content }, i) => (
     <SidebarGroup key={i}>
       <SidebarGroupLabel>{section}</SidebarGroupLabel>
 
@@ -131,21 +132,28 @@ export function SCSidebarContent() {
 
                     <CollapsibleContent>
                       <SidebarMenuSub>
-                        {subMenu.map(({ label, href, className }, idx) => (
-                          <SidebarMenuSubItem key={idx}>
-                            <SidebarMenuSubButton asChild>
-                              <Link
-                                href={href ?? `${route}/#${toKebabCase(label)}`}
+                        {subMenu.map(
+                          ({ label, href, className, ...props }, idx) => (
+                            <SidebarMenuSubItem key={idx}>
+                              <SidebarMenuSubButton
                                 className={cn(
                                   "flex justify-between",
                                   className,
                                 )}
+                                asChild
+                                {...props}
                               >
-                                {label} <LinkLoader />
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
+                                <Link
+                                  href={
+                                    href ?? `${route}/#${toKebabCase(label)}`
+                                  }
+                                >
+                                  {label} <LinkLoader />
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ),
+                        )}
                       </SidebarMenuSub>
                     </CollapsibleContent>
                   </>
