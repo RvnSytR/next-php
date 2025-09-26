@@ -2,7 +2,7 @@ import { DashboardMain } from "@/components/layout/section";
 import {
   ChangePasswordForm,
   PersonalInformationCard,
-} from "@/components/modules/user";
+} from "@/components/modules/user-client";
 import {
   Card,
   CardDescription,

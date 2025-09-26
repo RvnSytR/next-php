@@ -2,7 +2,7 @@ import { dashboardfooterMenu } from "@/lib/menu";
 import { cn } from "@/lib/utils";
 import { cva, VariantProps } from "class-variance-authority";
 import Link from "next/link";
-import { SignOutButton } from "../modules/user";
+import { SignOutButton } from "../modules/user-client";
 import { LinkLoader, RefreshButton } from "../ui/buttons";
 import {
   Sidebar,

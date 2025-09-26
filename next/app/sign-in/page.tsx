@@ -1,5 +1,5 @@
 import { Tagline } from "@/components/layout/section";
-import { SignInForm, SignUpForm } from "@/components/modules/user";
+import { SignInForm, SignUpForm } from "@/components/modules/user-client";
 import {
   Card,
   CardContent,

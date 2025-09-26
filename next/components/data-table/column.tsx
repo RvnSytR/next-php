@@ -14,7 +14,8 @@ import {
   UserRound,
   UserSquare2,
 } from "lucide-react";
-import { UserAvatar, UserDetailSheet, UserRoleBadge } from "../modules/user";
+import { UserAvatar, UserRoleBadge } from "../modules/user";
+import { UserDetailSheet } from "../modules/user-client";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 
