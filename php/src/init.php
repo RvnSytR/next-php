@@ -37,7 +37,6 @@ if (empty(trim($configJson))) {
 } else {
     $config = json_decode($configJson, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
-        header("Content-Type: application/json");
         responseError(
             new Error(
                 "Gagal memuat konfigurasi. Silakan periksa format JSON pada config.json.",
