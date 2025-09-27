@@ -14,7 +14,7 @@ export function usePhpSWR<T>(
   key: string,
   schema: ZodType<T>,
   config?: usePhpSWRConfig,
-): SWRResponse<PHPResponse & { data: T }> {
+): SWRResponse<PHPResponse<T>> {
   const { host, credentials } = appMeta.php;
 
   const ky = `${host}${key}`;
