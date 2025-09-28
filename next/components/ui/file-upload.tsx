@@ -4,7 +4,6 @@ import { cn, toMegabytes } from "@/lib/utils";
 import { zodSchemas } from "@/lib/zod";
 import { Dot, X } from "lucide-react";
 import { Route } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import {
   DragEvent,
@@ -197,12 +196,11 @@ export function FileUpload({
 
                 <div className="dark:bg-input/30 flex aspect-square w-full items-center justify-center overflow-hidden rounded-t-md">
                   {isImage ? (
-                    <Image
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
                       src={fileURL}
                       alt={file.name}
                       className="size-full object-cover object-center"
-                      width={100}
-                      height={100}
                     />
                   ) : (
                     <Icon />

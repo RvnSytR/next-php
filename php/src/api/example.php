@@ -35,6 +35,11 @@ action(
                 "min" => "08:00:00",
                 "max" => "17:00:00",
             ],
+            "datetime" => [
+                "type" => "time",
+                "min" => "08:00:00",
+                "max" => "17:00:00",
+            ],
             "array" => [
                 "type" => "array",
                 "min" => 1,

@@ -37,6 +37,7 @@ function checkType($value, string $type): bool
             ) !== null;
         case "date":
         case "time":
+        case "datetime":
             return strtotime($value) !== false;
         case "array":
             return is_array($value);
@@ -225,14 +226,26 @@ function checkFields(array $fields, array $rules): array
 
                 case "date":
                 case "time":
+                case "datetime":
                     $min = $rule["min"] ?? null;
                     $max = $rule["max"] ?? null;
-                    $ts = strtotime($value);
+
+                    $dt = new DateTime($value);
+                    $ts = $dt->getTimestamp();
+
                     if ($min !== null && $ts < strtotime($min)) {
                         throw new Error("$key tidak boleh sebelum $min.");
                     }
                     if ($max !== null && $ts > strtotime($max)) {
                         throw new Error("$key tidak boleh setelah $max.");
+                    }
+
+                    if ($type === "date") {
+                        $value = $dt->format("Y-m-d");
+                    } elseif ($type === "time") {
+                        $value = $dt->format("H:i:s");
+                    } elseif ($type === "datetime") {
+                        $value = $dt->format("Y-m-d H:i:s");
                     }
                     break;
 
