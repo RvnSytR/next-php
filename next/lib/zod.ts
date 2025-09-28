@@ -53,6 +53,7 @@ export const zodSchemas = {
   email: z
     .email({ error: messages.invalid(userFields.email.label) })
     .trim()
+    .toLowerCase()
     .min(1, { error: messages.required(userFields.email.label) })
     .max(255, { error: messages.stringTooLong(userFields.email.label, 255) }),
 

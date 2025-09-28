@@ -76,6 +76,7 @@ import {
 import { Form, FormControl, FormField } from "../ui/form";
 import { FormFieldWrapper, TextFields } from "../ui/form-fields";
 import { Loader } from "../ui/icons";
+import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { RadioGroupField } from "../ui/radio-group";
 import { Separator } from "../ui/separator";
@@ -942,6 +943,7 @@ function AdminRemoveUserDialog({
   data: Pick<User, "id" | "name">;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const [input, setInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const clickHandler = async () => {
@@ -983,11 +985,21 @@ function AdminRemoveUserDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
 
+        <div className="grid gap-2">
+          <Label>{messages.removeLabel(name)}</Label>
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={name}
+          />
+        </div>
+
         <AlertDialogFooter>
           <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>
           <AlertDialogAction
             className={buttonVariants({ variant: "destructive" })}
             onClick={clickHandler}
+            disabled={input !== name}
           >
             {actions.confirm}
           </AlertDialogAction>
@@ -1004,6 +1016,7 @@ function AdminActionRemoveUsersDialog({
   data: Pick<User, "id" | "name" | "image">[];
   onSuccess: () => void;
 }) {
+  const [input, setInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const clickHandler = async () => {
@@ -1045,6 +1058,15 @@ function AdminActionRemoveUsersDialog({
             karena aksi ini tidak dapat dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        <div className="grid gap-2">
+          <Label>{messages.removeLabel(String(data.length))}</Label>
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={String(data.length)}
+          />
+        </div>
 
         <AlertDialogFooter>
           <AlertDialogCancel>{actions.cancel}</AlertDialogCancel>

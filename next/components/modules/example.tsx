@@ -194,7 +194,7 @@ export function ExampleForm() {
           name="select"
           render={({ field: { value, onChange } }) => (
             <FormFieldWrapper label="Select">
-              <Select defaultValue={value} onValueChange={onChange} required>
+              <Select value={value} onValueChange={onChange} required>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih kartu" />
@@ -202,9 +202,9 @@ export function ExampleForm() {
                 </FormControl>
                 <SelectContent>
                   {selectAndRadioData.map(
-                    ({ value, label, icon: Icon, disabled }) => (
-                      <SelectItem key={value} value={value} disabled={disabled}>
-                        {Icon && <Icon />} {label ?? value}
+                    ({ value: v, label, icon: Icon, disabled }) => (
+                      <SelectItem key={v} value={v} disabled={disabled}>
+                        {Icon && <Icon />} {label ?? v}
                       </SelectItem>
                     ),
                   )}
@@ -296,7 +296,7 @@ export function ExampleForm() {
         render={({ field: { value, onChange } }) => (
           <FormFieldWrapper label="Radio Group">
             <RadioGroupField
-              defaultValue={value}
+              value={value}
               onValueChange={onChange}
               data={selectAndRadioData}
               required

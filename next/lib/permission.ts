@@ -9,12 +9,7 @@ export const allRoles = ["user", "admin"] as const;
 
 export const rolesMeta: Record<
   Role,
-  {
-    displayName: string;
-    desc: string;
-    icon: LucideIcon;
-    color: string | { light: string; dark: string };
-  }
+  { displayName: string; desc: string; icon: LucideIcon; color: string }
 > = {
   user: {
     displayName: "Pengguna",
