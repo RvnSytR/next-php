@@ -2,6 +2,12 @@
 node_modules
 vendor
 
+.next
+out
+build
+.vercel
+next-env.d.ts
+
 /php/config.json
 .htaccess
 

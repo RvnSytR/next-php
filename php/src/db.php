@@ -50,7 +50,7 @@ $db = [
         },
 
         "select-by-email" => function (string $email) use ($conn) {
-            $stmt = $conn->prepare("SELECT * FROM user WHERE email=?");
+            $stmt = $conn->prepare("SELECT * FROM user WHERE email LIKE ?");
             $stmt->bind_param("s", $email);
             return executeStmt($stmt);
         },
