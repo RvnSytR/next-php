@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 import { Collapsible as CollapsiblePrimitive } from "radix-ui";
 import { ComponentProps, useEffect, useState } from "react";
 import { UserAvatar } from "../modules/user";
-import { LinkLoader } from "../ui/buttons";
+import { LinkLoader } from "../ui/buttons-client";
 import {
   Collapsible,
   CollapsibleContent,
@@ -28,14 +28,14 @@ import {
   useSidebar,
 } from "../ui/sidebar";
 import { Skeleton } from "../ui/skeleton";
-import { SWRErrorFallback, SWRLoadingFallback } from "./section";
+import { ErrorFallback, LoadingFallback } from "./section";
 
 export function SCHeaderMenuButton() {
   const { data, error, isLoading } = useSession();
 
   if (isLoading) return <Skeleton className="h-12" />;
   if (error || !data?.data)
-    return <SWRErrorFallback error={error} className="h-12" hideText />;
+    return <ErrorFallback error={error} className="h-12" hideText />;
 
   const { email, name, image } = data.data;
 
@@ -83,9 +83,9 @@ export function SCSidebarContent() {
   const { data, error, isLoading } = useSession();
   const { isMobile, toggleSidebar } = useSidebar();
 
-  if (isLoading) return <SWRLoadingFallback className="h-full" />;
+  if (isLoading) return <LoadingFallback className="h-full" />;
   if (error || !data?.data)
-    return <SWRErrorFallback error={error} className="m-2 h-full" />;
+    return <ErrorFallback error={error} className="m-2 h-full" />;
 
   const menu = getMenuByRole(data.data.role);
   return menu.map(({ section, content }, i) => (

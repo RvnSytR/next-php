@@ -66,7 +66,7 @@ export function SheetDetails({
   ));
 }
 
-export function SWRLoadingFallback({ className }: { className?: string }) {
+export function LoadingFallback({ className }: { className?: string }) {
   return (
     <div className={cn("flex items-center justify-center p-4", className)}>
       <LoaderIcon className="text-foreground size-4 animate-spin" />
@@ -74,7 +74,7 @@ export function SWRLoadingFallback({ className }: { className?: string }) {
   );
 }
 
-export function SWRErrorFallback({
+export function ErrorFallback({
   error,
   hideText = false,
   className,
