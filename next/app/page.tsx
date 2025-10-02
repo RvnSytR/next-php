@@ -4,7 +4,7 @@ import {
   ExampleTypography,
 } from "@/components/modules/example";
 import { Button } from "@/components/ui/button";
-import { LinkLoader, ThemeToggle } from "@/components/ui/buttons";
+import { LinkLoader, ThemeButton } from "@/components/ui/buttons-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AreaChart, BarChart, PieChart } from "@/components/ui/charts";
 import { FormBuilder } from "@/components/ui/form-builder";
@@ -102,7 +102,7 @@ export default function Page() {
         <R />
 
         <div className="animate-fade delay-750 flex flex-wrap gap-2">
-          <ThemeToggle variant="outline_primary" />
+          <ThemeButton variant="outline_primary" />
 
           <Button variant="outline_primary" asChild>
             <Link href="/dashboard">
